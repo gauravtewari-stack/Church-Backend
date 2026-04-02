@@ -5,15 +5,12 @@ import {
   X,
   ChevronLeft,
   BookOpen,
-  Calendar,
   Folder,
   Gift,
   BookMarked,
   Music,
-  Radio,
-  Zap,
   Package,
-  Users,
+  LayoutDashboard,
   Settings,
   Cross,
 } from 'lucide-react';
@@ -33,18 +30,10 @@ const sidebarSections: SidebarSection[] = [
   {
     title: 'Content',
     items: [
-      { label: 'Sermons', icon: BookOpen, href: '/sermons' },
-      { label: 'Events', icon: Calendar, href: '/events' },
       { label: 'Categories', icon: Folder, href: '/categories' },
+      { label: 'Sermons', icon: BookOpen, href: '/sermons' },
       { label: 'Spiritual Library', icon: BookMarked, href: '/spiritual-library' },
       { label: 'Hymns', icon: Music, href: '/hymns' },
-    ],
-  },
-  {
-    title: 'Streaming',
-    items: [
-      { label: 'Radio Stations', icon: Radio, href: '/radio' },
-      { label: 'Live Streams', icon: Zap, href: '/live-stream' },
     ],
   },
   {
@@ -55,7 +44,6 @@ const sidebarSections: SidebarSection[] = [
     title: 'System',
     items: [
       { label: 'Media Library', icon: Package, href: '/media' },
-      { label: 'Users', icon: Users, href: '/users' },
       { label: 'Settings', icon: Settings, href: '/settings' },
     ],
   },
@@ -131,33 +119,40 @@ export function Sidebar() {
         </div>
 
         {/* Back Button */}
-        <Link
-          to="/dashboard"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '12px 24px',
-            color: '#4b5563',
-            textDecoration: 'none',
-            transition: 'all 0.2s ease',
-            borderBottom: '1px solid #f3f4f6',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.color = '#111827';
-            (e.currentTarget as HTMLElement).style.backgroundColor = '#f9fafb';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.color = '#4b5563';
-            (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-          }}
-        >
-          <ChevronLeft size={18} />
-          <span style={{ fontSize: '14px', fontWeight: 500 }}>Back to Dashboard</span>
-        </Link>
-
         {/* Navigation Sections */}
         <nav style={{ flex: 1, overflowY: 'auto', paddingTop: '16px', paddingRight: '12px', paddingBottom: '16px', paddingLeft: '12px' }}>
+          {/* Dashboard link */}
+          <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
+            <Link
+              to="/dashboard"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: isActive('/dashboard') ? '#1B73E8' : '#374151',
+                backgroundColor: isActive('/dashboard') ? '#eff6ff' : 'transparent',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive('/dashboard')) {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive('/dashboard')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <LayoutDashboard size={20} style={{ color: isActive('/dashboard') ? '#1B73E8' : '#6b7280' }} />
+              Dashboard
+            </Link>
+          </div>
           {sidebarSections.map((section) => (
             <div key={section.title} style={{ marginBottom: '24px' }}>
               <h3 style={{ paddingLeft: '16px', marginBottom: '12px', fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>

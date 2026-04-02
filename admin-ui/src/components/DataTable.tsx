@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Search, ChevronUp, ChevronDown, MoreHorizontal, Trash2, Copy } from 'lucide-react';
+import { Search, ChevronUp, ChevronDown, MoreHorizontal, Trash2, Copy, Pencil } from 'lucide-react';
+import { DeleteModal } from './DeleteModal';
 import type { TableColumn } from '../lib/types';
 
 interface DataTableProps<T> {
@@ -9,6 +10,7 @@ interface DataTableProps<T> {
   onDelete: (id: string) => void;
   onDuplicate?: (item: T) => void;
   emptyState?: string;
+  /** @deprecated Checkboxes hidden — bulk actions not implemented */
   showCheckbox?: boolean;
   onSelectionChange?: (selectedIds: string[]) => void;
   searchableColumns?: (keyof T)[];
@@ -21,7 +23,7 @@ export function DataTable<T extends { id: string }>({
   onDelete,
   onDuplicate,
   emptyState = 'No items found',
-  showCheckbox = true,
+  showCheckbox = false,
   onSelectionChange,
   searchableColumns = [],
 }: DataTableProps<T>) {
@@ -30,6 +32,7 @@ export function DataTable<T extends { id: string }>({
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
@@ -116,7 +119,7 @@ export function DataTable<T extends { id: string }>({
           <p style={{ color: '#6b7280' }}>{emptyState}</p>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+        <div style={{ overflow: 'visible', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff' }}>
             <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
               <tr>
@@ -206,13 +209,14 @@ export function DataTable<T extends { id: string }>({
                           style={{
                             position: 'absolute',
                             right: 0,
-                            marginTop: '8px',
+                            bottom: '100%',
+                            marginBottom: '4px',
                             width: '192px',
                             backgroundColor: '#fff',
                             border: '1px solid #e5e7eb',
                             borderRadius: '8px',
-                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                            zIndex: 10,
+                            boxShadow: '0 -4px 15px -3px rgba(0, 0, 0, 0.1)',
+                            zIndex: 50,
                           }}
                         >
                           <button
@@ -232,12 +236,15 @@ export function DataTable<T extends { id: string }>({
                               backgroundColor: 'transparent',
                               border: 'none',
                               cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
                               transition: 'background-color 0.2s ease',
                             }}
                             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#eff6ff')}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                           >
-                            Edit
+                            <Pencil style={{ width: '16px', height: '16px' }} /> Edit
                           </button>
                           {onDuplicate && (
                             <button
@@ -270,7 +277,7 @@ export function DataTable<T extends { id: string }>({
                           )}
                           <button
                             onClick={() => {
-                              onDelete(item.id);
+                              setDeleteConfirmId(item.id);
                               setOpenMenuId(null);
                             }}
                             style={{
@@ -306,6 +313,19 @@ export function DataTable<T extends { id: string }>({
           </table>
         </div>
       )}
+
+      <DeleteModal
+        isOpen={deleteConfirmId !== null}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        onConfirm={() => {
+          if (deleteConfirmId) {
+            onDelete(deleteConfirmId);
+            setDeleteConfirmId(null);
+          }
+        }}
+        onCancel={() => setDeleteConfirmId(null)}
+      />
     </div>
   );
 }

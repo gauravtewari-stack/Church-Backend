@@ -1,9 +1,10 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationMetaDto } from './pagination.dto';
 
 export class ApiResponseDto<T> {
-  success: boolean;
-  data: T;
-  message?: string;
+  @ApiProperty({ description: 'Whether the request was successful', example: true }) success: boolean;
+  @ApiProperty({ description: 'Response data' }) data: T;
+  @ApiPropertyOptional({ description: 'Response message' }) message?: string;
   meta?: {
     pagination?: PaginationMetaDto;
     filters?: Record<string, any>;

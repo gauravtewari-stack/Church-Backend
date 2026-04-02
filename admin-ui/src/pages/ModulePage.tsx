@@ -86,8 +86,7 @@ export function ModulePage<T extends { id: string }>({
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', padding: '24px' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#111827' }}>{pageTitle}</h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '24px' }}>
           {!showForm && (
             <button
               onClick={() => {

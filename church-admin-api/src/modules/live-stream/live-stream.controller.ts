@@ -12,6 +12,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { LiveStreamService } from './live-stream.service';
 import {
   CreateLiveStreamDto,
@@ -21,162 +22,131 @@ import {
   EndStreamDto,
 } from './dto/live-stream.dto';
 
-// Import your auth guard here - adjust based on your auth setup
-// import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-
+@ApiTags('Live Streams')
+@ApiBearerAuth('Bearer')
 @Controller('api/v1/live-streams')
-// @UseGuards(JwtAuthGuard)
 export class LiveStreamController {
   constructor(private readonly liveStreamService: LiveStreamService) {}
 
-  /**
-   * GET /api/v1/live-streams
-   * List all live streams with pagination and filters
-   */
   @Get()
+  @ApiOperation({ summary: 'List all live streams with pagination and filters' })
+  @ApiResponse({ status: 200, description: 'Live streams retrieved successfully' })
   async findAll(@Request() req: any, @Query() query: LiveStreamQueryDto) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.findAll(churchId, query);
   }
 
-  /**
-   * POST /api/v1/live-streams
-   * Create new live stream
-   */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new live stream' })
+  @ApiResponse({ status: 201, description: 'Live stream created successfully' })
   async create(@Request() req: any, @Body() createDto: CreateLiveStreamDto) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     const userId = req.user?.id || req.headers['x-user-id'];
     return this.liveStreamService.create(churchId, createDto, userId);
   }
 
-  /**
-   * GET /api/v1/live-streams/upcoming
-   * Get upcoming scheduled streams
-   */
   @Get('upcoming')
+  @ApiOperation({ summary: 'Get upcoming scheduled streams' })
+  @ApiResponse({ status: 200, description: 'Upcoming streams retrieved' })
   async getUpcoming(@Request() req: any, @Query('limit') limit?: number) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.findUpcoming(churchId, limit);
   }
 
-  /**
-   * GET /api/v1/live-streams/active
-   * Get currently active streams
-   */
   @Get('active')
+  @ApiOperation({ summary: 'Get currently active streams' })
+  @ApiResponse({ status: 200, description: 'Active streams retrieved' })
   async getActive(@Request() req: any) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.findActive(churchId);
   }
 
-  /**
-   * GET /api/v1/live-streams/recent
-   * Get recently ended streams
-   */
   @Get('recent')
+  @ApiOperation({ summary: 'Get recently ended streams' })
+  @ApiResponse({ status: 200, description: 'Recent streams retrieved' })
   async getRecent(@Request() req: any, @Query('limit') limit?: number) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.findRecent(churchId, limit);
   }
 
-  /**
-   * GET /api/v1/live-streams/stats
-   * Get statistics
-   */
   @Get('stats')
+  @ApiOperation({ summary: 'Get live stream statistics' })
+  @ApiResponse({ status: 200, description: 'Stats retrieved successfully' })
   async getStats(@Request() req: any) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.getStats(churchId);
   }
 
-  /**
-   * GET /api/v1/live-streams/empty-state
-   * Get empty state
-   */
   @Get('empty-state')
+  @ApiOperation({ summary: 'Get empty state configuration' })
+  @ApiResponse({ status: 200, description: 'Empty state retrieved' })
   async getEmptyState() {
     return this.liveStreamService.getEmptyState();
   }
 
-  /**
-   * GET /api/v1/live-streams/:id
-   * Get single live stream
-   */
   @Get(':id')
+  @ApiOperation({ summary: 'Get a single live stream by ID' })
+  @ApiResponse({ status: 200, description: 'Live stream retrieved' })
+  @ApiResponse({ status: 404, description: 'Live stream not found' })
   async findOne(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.findOne(churchId, id);
   }
 
-  /**
-   * PATCH /api/v1/live-streams/:id
-   * Update live stream
-   */
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a live stream' })
+  @ApiResponse({ status: 200, description: 'Live stream updated' })
   async update(@Request() req: any, @Param('id') id: string, @Body() updateDto: UpdateLiveStreamDto) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.update(churchId, id, updateDto);
   }
 
-  /**
-   * DELETE /api/v1/live-streams/:id
-   * Delete live stream (soft delete)
-   */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a live stream (soft delete)' })
+  @ApiResponse({ status: 204, description: 'Live stream deleted' })
   async remove(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     await this.liveStreamService.remove(churchId, id);
   }
 
-  /**
-   * PATCH /api/v1/live-streams/:id/restore
-   * Restore soft deleted live stream
-   */
   @Patch(':id/restore')
+  @ApiOperation({ summary: 'Restore a soft-deleted live stream' })
+  @ApiResponse({ status: 200, description: 'Live stream restored' })
   async restore(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.restore(churchId, id);
   }
 
-  /**
-   * PATCH /api/v1/live-streams/:id/go-live
-   * Start live stream
-   */
   @Patch(':id/go-live')
+  @ApiOperation({ summary: 'Start a live stream' })
+  @ApiResponse({ status: 200, description: 'Stream is now live' })
   async goLive(@Request() req: any, @Param('id') id: string, @Body() goLiveDto?: GoLiveDto) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.goLive(churchId, id, goLiveDto);
   }
 
-  /**
-   * PATCH /api/v1/live-streams/:id/end
-   * End live stream
-   */
   @Patch(':id/end')
+  @ApiOperation({ summary: 'End a live stream' })
+  @ApiResponse({ status: 200, description: 'Stream ended' })
   async endStream(@Request() req: any, @Param('id') id: string, @Body() endDto?: EndStreamDto) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.endStream(churchId, id, endDto);
   }
 
-  /**
-   * PATCH /api/v1/live-streams/:id/archive
-   * Archive live stream
-   */
   @Patch(':id/archive')
+  @ApiOperation({ summary: 'Archive a live stream' })
+  @ApiResponse({ status: 200, description: 'Stream archived' })
   async archive(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.liveStreamService.archive(churchId, id);
   }
 
-  /**
-   * PATCH /api/v1/live-streams/:id/view
-   * Increment view count
-   */
   @Patch(':id/view')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Increment live stream view count' })
+  @ApiResponse({ status: 204, description: 'View count incremented' })
   async incrementView(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     await this.liveStreamService.incrementViewCount(churchId, id);

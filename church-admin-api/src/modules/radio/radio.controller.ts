@@ -12,124 +12,102 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RadioService } from './radio.service';
 import { CreateRadioDto, UpdateRadioDto, RadioQueryDto } from './dto/radio.dto';
 
-// Import your auth guard here - adjust based on your auth setup
-// import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-
+@ApiTags('Radio Stations')
+@ApiBearerAuth('Bearer')
 @Controller('api/v1/radio')
-// @UseGuards(JwtAuthGuard)
 export class RadioController {
   constructor(private readonly radioService: RadioService) {}
 
-  /**
-   * GET /api/v1/radio
-   * List all radio stations with pagination and filters
-   */
   @Get()
+  @ApiOperation({ summary: 'List all radio stations with pagination and filters' })
+  @ApiResponse({ status: 200, description: 'Radio stations retrieved successfully' })
   async findAll(@Request() req: any, @Query() query: RadioQueryDto) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.radioService.findAll(churchId, query);
   }
 
-  /**
-   * POST /api/v1/radio
-   * Create new radio station
-   */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new radio station' })
+  @ApiResponse({ status: 201, description: 'Radio station created successfully' })
   async create(@Request() req: any, @Body() createDto: CreateRadioDto) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     const userId = req.user?.id || req.headers['x-user-id'];
     return this.radioService.create(churchId, createDto, userId);
   }
 
-  /**
-   * GET /api/v1/radio/active
-   * Get active stations
-   */
   @Get('active')
+  @ApiOperation({ summary: 'Get active radio stations' })
+  @ApiResponse({ status: 200, description: 'Active stations retrieved' })
   async getActiveStations(@Request() req: any) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.radioService.getActiveStations(churchId);
   }
 
-  /**
-   * GET /api/v1/radio/stats
-   * Get statistics
-   */
   @Get('stats')
+  @ApiOperation({ summary: 'Get radio station statistics' })
+  @ApiResponse({ status: 200, description: 'Stats retrieved successfully' })
   async getStats(@Request() req: any) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.radioService.getStats(churchId);
   }
 
-  /**
-   * GET /api/v1/radio/empty-state
-   * Get empty state
-   */
   @Get('empty-state')
+  @ApiOperation({ summary: 'Get empty state configuration' })
+  @ApiResponse({ status: 200, description: 'Empty state retrieved' })
   async getEmptyState() {
     return this.radioService.getEmptyState();
   }
 
-  /**
-   * GET /api/v1/radio/:id
-   * Get single radio station
-   */
   @Get(':id')
+  @ApiOperation({ summary: 'Get a single radio station by ID' })
+  @ApiResponse({ status: 200, description: 'Radio station retrieved' })
+  @ApiResponse({ status: 404, description: 'Radio station not found' })
   async findOne(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.radioService.findOne(churchId, id);
   }
 
-  /**
-   * PATCH /api/v1/radio/:id
-   * Update radio station
-   */
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a radio station' })
+  @ApiResponse({ status: 200, description: 'Radio station updated' })
   async update(@Request() req: any, @Param('id') id: string, @Body() updateDto: UpdateRadioDto) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.radioService.update(churchId, id, updateDto);
   }
 
-  /**
-   * DELETE /api/v1/radio/:id
-   * Delete radio station (soft delete)
-   */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a radio station (soft delete)' })
+  @ApiResponse({ status: 204, description: 'Radio station deleted' })
   async remove(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     await this.radioService.remove(churchId, id);
   }
 
-  /**
-   * PATCH /api/v1/radio/:id/restore
-   * Restore soft deleted radio station
-   */
   @Patch(':id/restore')
+  @ApiOperation({ summary: 'Restore a soft-deleted radio station' })
+  @ApiResponse({ status: 200, description: 'Radio station restored' })
   async restore(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.radioService.restore(churchId, id);
   }
 
-  /**
-   * PATCH /api/v1/radio/:id/activate
-   * Activate radio station
-   */
   @Patch(':id/activate')
+  @ApiOperation({ summary: 'Activate a radio station' })
+  @ApiResponse({ status: 200, description: 'Radio station activated' })
   async activate(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.radioService.activate(churchId, id);
   }
 
-  /**
-   * PATCH /api/v1/radio/:id/deactivate
-   * Deactivate radio station
-   */
   @Patch(':id/deactivate')
+  @ApiOperation({ summary: 'Deactivate a radio station' })
+  @ApiResponse({ status: 200, description: 'Radio station deactivated' })
   async deactivate(@Request() req: any, @Param('id') id: string) {
     const churchId = req.user?.church_id || req.headers['x-church-id'];
     return this.radioService.deactivate(churchId, id);

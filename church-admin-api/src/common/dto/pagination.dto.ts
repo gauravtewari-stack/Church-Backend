@@ -1,14 +1,17 @@
 import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { SortOrder } from '../enums';
 
 export class PaginationDto {
+  @ApiPropertyOptional({ description: 'Page number', default: 1, example: 1 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
   page?: number = 1;
 
+  @ApiPropertyOptional({ description: 'Items per page (max 100)', default: 20, example: 20 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -16,14 +19,17 @@ export class PaginationDto {
   @Max(100)
   limit?: number = 20;
 
+  @ApiPropertyOptional({ description: 'Search query string' })
   @IsOptional()
   @IsString()
   search?: string;
 
+  @ApiPropertyOptional({ description: 'Field to sort by', example: 'created_at' })
   @IsOptional()
   @IsString()
   sort_by?: string;
 
+  @ApiPropertyOptional({ description: 'Sort order', enum: SortOrder, default: SortOrder.DESC })
   @IsOptional()
   @IsString()
   @Transform(({ value }) => value?.toUpperCase())
@@ -54,12 +60,12 @@ export class PaginationDto {
 }
 
 export class PaginationMetaDto {
-  page: number;
-  limit: number;
-  total: number;
-  total_pages: number;
-  has_next: boolean;
-  has_prev: boolean;
+  @ApiProperty({ example: 1 }) page: number;
+  @ApiProperty({ example: 20 }) limit: number;
+  @ApiProperty({ example: 100 }) total: number;
+  @ApiProperty({ example: 5 }) total_pages: number;
+  @ApiProperty({ example: true }) has_next: boolean;
+  @ApiProperty({ example: false }) has_prev: boolean;
 
   constructor(page: number, limit: number, total: number) {
     this.page = page;

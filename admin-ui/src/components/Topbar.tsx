@@ -6,7 +6,7 @@ const pathLabels: Record<string, string> = {
   '/sermons': 'Sermons',
   '/events': 'Events',
   '/categories': 'Categories',
-  '/donations': 'Donation Campaigns',
+  '/donations': 'Donations',
   '/spiritual-library': 'Spiritual Resources',
   '/hymns': 'Hymns',
   '/radio': 'Radio Stations',

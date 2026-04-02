@@ -13,6 +13,7 @@ import {
   ValidationPipe,
   ParseUUIDPipe,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import {
   CreateUserDto,
@@ -38,30 +39,28 @@ interface ChurchContext {
   id: string;
 }
 
+@ApiTags('Users')
+@ApiBearerAuth('Bearer')
 @Controller('api/v1/users')
 @UseGuards(AuthenticatedGuard, ChurchGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  /**
-   * Create a new user profile in the church
-   * POST /api/v1/users
-   */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new user in the church' })
+  @ApiResponse({ status: 201, description: 'User created successfully', type: UserProfileDto })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
     @User() user: AuthUser,
   ): Promise<UserProfileDto> {
-    // TODO: Verify user has permission to create users (admin/pastor role)
     return this.usersService.createProfile(user.church_id, '', createUserDto);
   }
 
-  /**
-   * Get all users in the church
-   * GET /api/v1/users
-   */
   @Get()
+  @ApiOperation({ summary: 'Get all users in the church' })
+  @ApiResponse({ status: 200, description: 'Users retrieved successfully', type: PaginatedUsersDto })
   async findAll(
     @Query(ValidationPipe) query: UserListQueryDto,
     @User() user: AuthUser,
@@ -69,11 +68,10 @@ export class UsersController {
     return this.usersService.findAllByChurch(user.church_id, query);
   }
 
-  /**
-   * Get a specific user by ID
-   * GET /api/v1/users/:id
-   */
   @Get(':id')
+  @ApiOperation({ summary: 'Get a specific user by ID' })
+  @ApiResponse({ status: 200, description: 'User retrieved successfully', type: UserProfileDto })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
     @User() user: AuthUser,
@@ -81,87 +79,69 @@ export class UsersController {
     return this.usersService.findOne(id, user.church_id);
   }
 
-  /**
-   * Update user profile
-   * PATCH /api/v1/users/:id
-   */
   @Patch(':id')
+  @ApiOperation({ summary: 'Update user profile' })
+  @ApiResponse({ status: 200, description: 'User updated successfully', type: UserProfileDto })
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
     @User() user: AuthUser,
   ): Promise<UserProfileDto> {
-    // TODO: Verify user has permission (own profile or admin)
     return this.usersService.update(id, user.church_id, updateUserDto);
   }
 
-  /**
-   * Invite a user to the church
-   * POST /api/v1/users/invite
-   */
   @Post('invite')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Invite a user to the church' })
+  @ApiResponse({ status: 201, description: 'Invitation sent successfully' })
   async invite(
     @Body(ValidationPipe) inviteUserDto: InviteUserDto,
     @User() user: AuthUser,
   ): Promise<{ invitation_token: string; message: string }> {
-    // TODO: Verify user has permission to invite (admin/pastor role)
     return this.usersService.inviteUser(user.church_id, inviteUserDto);
   }
 
-  /**
-   * Deactivate a user
-   * POST /api/v1/users/:id/deactivate
-   */
   @Post(':id/deactivate')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Deactivate a user' })
+  @ApiResponse({ status: 200, description: 'User deactivated', type: UserProfileDto })
   async deactivate(
     @Param('id', new ParseUUIDPipe()) id: string,
     @User() user: AuthUser,
   ): Promise<UserProfileDto> {
-    // TODO: Verify user has permission (admin only)
     return this.usersService.deactivate(id, user.church_id);
   }
 
-  /**
-   * Activate a user
-   * POST /api/v1/users/:id/activate
-   */
   @Post(':id/activate')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Activate a user' })
+  @ApiResponse({ status: 200, description: 'User activated', type: UserProfileDto })
   async activate(
     @Param('id', new ParseUUIDPipe()) id: string,
     @User() user: AuthUser,
   ): Promise<UserProfileDto> {
-    // TODO: Verify user has permission (admin only)
     return this.usersService.activate(id, user.church_id);
   }
 
-  /**
-   * Soft delete a user
-   * DELETE /api/v1/users/:id
-   */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Soft delete a user' })
+  @ApiResponse({ status: 200, description: 'User deleted successfully' })
   async softDelete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @User() user: AuthUser,
   ): Promise<{ success: boolean; message: string }> {
-    // TODO: Verify user has permission (admin only)
     return this.usersService.softDelete(id, user.church_id);
   }
 
-  /**
-   * Restore a soft-deleted user
-   * POST /api/v1/users/:id/restore
-   */
   @Post(':id/restore')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Restore a soft-deleted user' })
+  @ApiResponse({ status: 200, description: 'User restored', type: UserProfileDto })
   async restore(
     @Param('id', new ParseUUIDPipe()) id: string,
     @User() user: AuthUser,
   ): Promise<UserProfileDto> {
-    // TODO: Verify user has permission (admin only)
     return this.usersService.restore(id, user.church_id);
   }
 }

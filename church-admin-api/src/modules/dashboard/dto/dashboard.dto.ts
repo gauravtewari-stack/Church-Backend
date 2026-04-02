@@ -1,72 +1,74 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 export class DashboardStatsDto {
-  label: string;
-  value: number | string;
-  change?: number;
-  changeDirection?: 'up' | 'down' | 'neutral';
+  @ApiProperty({ description: 'Stat label', example: 'Total Sermons' }) label: string;
+  @ApiProperty({ description: 'Stat value', example: 42 }) value: number | string;
+  @ApiPropertyOptional({ description: 'Change percentage', example: 12.5 }) change?: number;
+  @ApiPropertyOptional({ description: 'Change direction', enum: ['up', 'down', 'neutral'] }) changeDirection?: 'up' | 'down' | 'neutral';
 }
 
 export class ContentStatsDto {
-  module: string;
-  total: number;
-  published: number;
-  draft: number;
-  archived: number;
+  @ApiProperty({ example: 'sermons' }) module: string;
+  @ApiProperty({ example: 42 }) total: number;
+  @ApiProperty({ example: 30 }) published: number;
+  @ApiProperty({ example: 8 }) draft: number;
+  @ApiProperty({ example: 4 }) archived: number;
+}
+
+export class ActivityLogDto {
+  @ApiProperty() id: string;
+  @ApiProperty({ example: 'created' }) action: string;
+  @ApiProperty({ example: 'sermon' }) entity_type: string;
+  @ApiProperty({ example: 'Sunday Worship' }) entity_name: string;
+  @ApiProperty({ example: 'John Doe' }) user_name: string;
+  @ApiProperty() created_at: Date;
 }
 
 export class DashboardOverviewDto {
-  total_sermons: {
+  @ApiProperty() total_sermons: {
     count: number;
     published: number;
     draft: number;
   };
-  total_events: {
+  @ApiProperty() total_events: {
     count: number;
     upcoming: number;
     past: number;
   };
-  total_donations: {
+  @ApiProperty() total_donations: {
     amount: string;
     count: number;
     average: string;
   };
-  total_media: {
+  @ApiProperty() total_media: {
     count: number;
     storage_used_bytes: bigint;
     storage_used_readable: string;
   };
-  recent_activity: ActivityLogDto[];
-}
-
-export class ActivityLogDto {
-  id: string;
-  action: string;
-  entity_type: string;
-  entity_name: string;
-  user_name: string;
-  created_at: Date;
+  @ApiProperty({ type: [ActivityLogDto] }) recent_activity: ActivityLogDto[];
 }
 
 export class ContentBreakdownDto {
-  sermons: ContentStatsDto;
-  events: ContentStatsDto;
-  hymns: ContentStatsDto;
-  announcements: ContentStatsDto;
+  @ApiProperty({ type: ContentStatsDto }) sermons: ContentStatsDto;
+  @ApiProperty({ type: ContentStatsDto }) events: ContentStatsDto;
+  @ApiProperty({ type: ContentStatsDto }) hymns: ContentStatsDto;
+  @ApiProperty({ type: ContentStatsDto }) announcements: ContentStatsDto;
 }
 
 export class DonationStatsDto {
-  total_raised: string;
-  total_count: number;
-  this_month: {
+  @ApiProperty({ example: '$15,250.00' }) total_raised: string;
+  @ApiProperty({ example: 156 }) total_count: number;
+  @ApiProperty() this_month: {
     amount: string;
     count: number;
     average: string;
   };
-  last_month: {
+  @ApiProperty() last_month: {
     amount: string;
     count: number;
     average: string;
   };
-  by_campaign: {
+  @ApiProperty() by_campaign: {
     campaign_name: string;
     amount: string;
     count: number;
@@ -74,28 +76,28 @@ export class DonationStatsDto {
 }
 
 export class UpcomingEventDto {
-  id: string;
-  title: string;
-  event_date: Date;
-  location: string;
-  attendee_count: number;
+  @ApiProperty() id: string;
+  @ApiProperty({ example: 'Sunday Service' }) title: string;
+  @ApiProperty() event_date: Date;
+  @ApiProperty({ example: 'Main Hall' }) location: string;
+  @ApiProperty({ example: 150 }) attendee_count: number;
 }
 
 export class PopularContentDto {
-  id: string;
-  title: string;
-  type: string;
-  view_count: number;
-  engagement: number;
+  @ApiProperty() id: string;
+  @ApiProperty({ example: 'Amazing Grace' }) title: string;
+  @ApiProperty({ example: 'sermon' }) type: string;
+  @ApiProperty({ example: 1250 }) view_count: number;
+  @ApiProperty({ example: 85 }) engagement: number;
 }
 
 export class StorageStatsDto {
-  used_bytes: bigint;
-  used_readable: string;
-  total_bytes: bigint;
-  total_readable: string;
-  percentage_used: number;
-  by_type: {
+  @ApiProperty() used_bytes: bigint;
+  @ApiProperty({ example: '2.5 GB' }) used_readable: string;
+  @ApiProperty() total_bytes: bigint;
+  @ApiProperty({ example: '10 GB' }) total_readable: string;
+  @ApiProperty({ example: 25 }) percentage_used: number;
+  @ApiProperty() by_type: {
     [key: string]: {
       count: number;
       bytes: bigint;
@@ -105,34 +107,34 @@ export class StorageStatsDto {
 }
 
 export class PlanStatusDto {
-  plan_name: string;
-  plan_tier: string;
-  billing_cycle: string;
-  renewal_date: Date;
-  storage_limit_bytes: bigint;
-  storage_limit_readable: string;
-  storage_used_bytes: bigint;
-  storage_used_readable: string;
-  storage_percentage: number;
-  feature_limits: {
+  @ApiProperty({ example: 'Pro' }) plan_name: string;
+  @ApiProperty({ example: 'pro' }) plan_tier: string;
+  @ApiProperty({ example: 'monthly' }) billing_cycle: string;
+  @ApiProperty() renewal_date: Date;
+  @ApiProperty() storage_limit_bytes: bigint;
+  @ApiProperty({ example: '10 GB' }) storage_limit_readable: string;
+  @ApiProperty() storage_used_bytes: bigint;
+  @ApiProperty({ example: '2.5 GB' }) storage_used_readable: string;
+  @ApiProperty({ example: 25 }) storage_percentage: number;
+  @ApiProperty() feature_limits: {
     [key: string]: {
       limit: number;
       used: number;
       percentage: number;
     };
   };
-  upgrade_needed: boolean;
-  upgrade_reason: string | null;
+  @ApiProperty({ example: false }) upgrade_needed: boolean;
+  @ApiPropertyOptional() upgrade_reason: string | null;
 }
 
 export class OnboardingStatusDto {
-  overall_completion: number;
-  modules_with_content: string[];
-  first_sermon_added: boolean;
-  first_event_added: boolean;
-  media_uploaded: boolean;
-  team_members_added: boolean;
-  completion_steps: {
+  @ApiProperty({ example: 75 }) overall_completion: number;
+  @ApiProperty({ example: ['sermons', 'events'] }) modules_with_content: string[];
+  @ApiProperty({ example: true }) first_sermon_added: boolean;
+  @ApiProperty({ example: true }) first_event_added: boolean;
+  @ApiProperty({ example: false }) media_uploaded: boolean;
+  @ApiProperty({ example: false }) team_members_added: boolean;
+  @ApiProperty() completion_steps: {
     step: string;
     completed: boolean;
     completion_date: Date | null;
@@ -140,13 +142,13 @@ export class OnboardingStatusDto {
 }
 
 export class DashboardResponseDto {
-  overview?: DashboardOverviewDto;
-  content_stats?: ContentBreakdownDto;
-  recent_content?: any[];
-  donation_stats?: DonationStatsDto;
-  upcoming_events?: UpcomingEventDto[];
-  popular_content?: PopularContentDto[];
-  storage?: StorageStatsDto;
-  plan_status?: PlanStatusDto;
-  onboarding?: OnboardingStatusDto;
+  @ApiPropertyOptional({ type: DashboardOverviewDto }) overview?: DashboardOverviewDto;
+  @ApiPropertyOptional({ type: ContentBreakdownDto }) content_stats?: ContentBreakdownDto;
+  @ApiPropertyOptional() recent_content?: any[];
+  @ApiPropertyOptional({ type: DonationStatsDto }) donation_stats?: DonationStatsDto;
+  @ApiPropertyOptional({ type: [UpcomingEventDto] }) upcoming_events?: UpcomingEventDto[];
+  @ApiPropertyOptional({ type: [PopularContentDto] }) popular_content?: PopularContentDto[];
+  @ApiPropertyOptional({ type: StorageStatsDto }) storage?: StorageStatsDto;
+  @ApiPropertyOptional({ type: PlanStatusDto }) plan_status?: PlanStatusDto;
+  @ApiPropertyOptional({ type: OnboardingStatusDto }) onboarding?: OnboardingStatusDto;
 }

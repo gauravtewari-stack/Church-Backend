@@ -3,6 +3,14 @@ import { ValidationPipe, BadRequestException, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { SermonsModule } from './modules/sermons/sermons.module';
+import { DonationsModule } from './modules/donations/donations.module';
+import { SpiritualLibraryModule } from './modules/spiritual-library/spiritual-library.module';
+import { HymnsModule } from './modules/hymns/hymns.module';
+import { MediaModule } from './modules/media/media.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import helmet from 'helmet';
 import compression from 'compression';
 
@@ -98,7 +106,18 @@ async function bootstrap() {
     )
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    include: [
+      AuthModule,
+      CategoriesModule,
+      SermonsModule,
+      DonationsModule,
+      SpiritualLibraryModule,
+      HymnsModule,
+      MediaModule,
+      DashboardModule,
+    ],
+  });
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,

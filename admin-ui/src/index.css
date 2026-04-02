@@ -1,3 +1,23 @@
+/* Quill editor overrides */
+.ql-container {
+  font-family: inherit;
+  font-size: 14px;
+  min-height: 120px;
+}
+.ql-editor {
+  min-height: 120px;
+}
+.ql-toolbar.ql-snow {
+  border: none;
+  border-bottom: 1px solid #d1d5db;
+}
+.ql-container.ql-snow {
+  border: none;
+}
+.ql-editor:focus {
+  outline: none;
+}
+
 /* CSS Variables */
 :root {
   --primary: #1B73E8;

@@ -162,7 +162,7 @@ export interface TableColumn<T> {
 export interface FormField {
   name: string;
   label: string;
-  type: "text" | "email" | "textarea" | "select" | "checkbox" | "date" | "number" | "time" | "color";
+  type: "text" | "email" | "textarea" | "richtext" | "select" | "checkbox" | "date" | "number" | "time" | "color" | "file";
   placeholder?: string;
   required?: boolean;
   options?: Array<{ value: string; label: string }>;
@@ -170,6 +170,8 @@ export interface FormField {
   maxLength?: number;
   min?: number;
   max?: number;
+  accept?: string;
+  dependsOn?: { field: string; acceptMap?: Record<string, string> };
 }
 
 export interface StoreState {
