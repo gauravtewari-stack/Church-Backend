@@ -40,10 +40,7 @@ export class UserProfile {
   church: Church;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  first_name: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  last_name: string;
+  name: string;
 
   @Column({ type: 'text', nullable: true })
   bio: string;
@@ -66,11 +63,11 @@ export class UserProfile {
   @Column({ type: 'varchar', length: 100, nullable: true })
   job_title: string;
 
-  @Column({ type: 'boolean', default: true })
-  is_active: boolean = true;
+  @Column({ type: 'varchar', length: 50, default: 'active' })
+  status: string;
 
-  @Column({ type: 'datetime', nullable: true })
-  last_login_at: Date;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  last_login: string;
 
   @CreateDateColumn({ type: 'datetime' })
   created_at: Date;

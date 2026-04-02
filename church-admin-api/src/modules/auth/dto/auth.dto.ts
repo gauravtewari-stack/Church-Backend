@@ -24,17 +24,11 @@ export class RegisterDto {
   @MaxLength(50)
   password: string;
 
-  @ApiProperty({ description: 'First name', example: 'John' })
+  @ApiProperty({ description: 'Full name', example: 'John Doe' })
   @IsString()
   @MinLength(2)
-  @MaxLength(100)
-  first_name: string;
-
-  @ApiProperty({ description: 'Last name', example: 'Doe' })
-  @IsString()
-  @MinLength(2)
-  @MaxLength(100)
-  last_name: string;
+  @MaxLength(255)
+  name: string;
 
   @ApiProperty({ description: 'Church UUID', example: '550e8400-e29b-41d4-a716-446655440000' })
   @IsUUID()
@@ -99,11 +93,8 @@ export class UserResponseDto {
   @ApiProperty({ description: 'Email address', example: 'admin@church.com' })
   email: string;
 
-  @ApiProperty({ description: 'First name', example: 'John' })
-  first_name: string;
-
-  @ApiProperty({ description: 'Last name', example: 'Doe' })
-  last_name: string;
+  @ApiProperty({ description: 'Full name', example: 'John Doe' })
+  name: string;
 
   @ApiProperty({ description: 'User role', enum: UserRole, example: 'admin' })
   role: UserRole;
@@ -111,8 +102,8 @@ export class UserResponseDto {
   @ApiProperty({ description: 'Church ID', example: '550e8400-e29b-41d4-a716-446655440000' })
   church_id: string;
 
-  @ApiProperty({ description: 'Whether the user is active', example: true })
-  is_active: boolean;
+  @ApiProperty({ description: 'User status', example: 'active' })
+  status: string;
 
   @ApiProperty({ description: 'Avatar URL', example: 'https://example.com/avatar.jpg' })
   avatar_url: string;
@@ -121,7 +112,7 @@ export class UserResponseDto {
   phone: string;
 
   @ApiProperty({ description: 'Last login timestamp' })
-  last_login_at: Date;
+  last_login: string;
 
   @ApiProperty({ description: 'Creation timestamp' })
   created_at: Date;

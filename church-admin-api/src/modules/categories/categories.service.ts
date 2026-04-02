@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, TreeRepository } from 'typeorm';
+import { Repository } from 'typeorm';
+import { ContentStatus } from '../../common/enums';
 import slugify from 'slugify';
 import { v4 as uuidv4 } from 'uuid';
 import { Category } from './entities/category.entity';
@@ -63,10 +64,10 @@ export class CategoriesService {
   ): Promise<{ items: Category[]; meta: any }> {
     const {
       search,
-      is_visible,
+      status,
       parent_id,
-      sort_by = 'sort_order',
-      order = 'ASC',
+      sort_by = 'order',
+      order_dir = 'ASC',
       page = 1,
       limit = 10,
       include_children,
@@ -84,8 +85,8 @@ export class CategoriesService {
       );
     }
 
-    if (is_visible !== undefined) {
-      query.andWhere('category.is_visible = :is_visible', { is_visible });
+    if (status) {
+      query.andWhere('category.status = :status', { status });
     }
 
     if (parent_id) {
@@ -97,11 +98,11 @@ export class CategoriesService {
 
     // Sorting
     if (sort_by === 'name') {
-      query.orderBy('category.name', order);
+      query.orderBy('category.name', order_dir);
     } else if (sort_by === 'created_at') {
-      query.orderBy('category.created_at', order);
+      query.orderBy('category.created_at', order_dir);
     } else {
-      query.orderBy('category.sort_order', order);
+      query.orderBy('category.order', order_dir);
     }
 
     // Pagination
@@ -259,7 +260,7 @@ export class CategoriesService {
 
     for (const item of reorderDto) {
       const category = await this.findOne(churchId, item.id);
-      category.sort_order = item.sort_order;
+      category.order = item.order;
       category.updated_by = userId;
       results.push(await this.categoriesRepository.save(category));
     }
@@ -288,14 +289,14 @@ export class CategoriesService {
             await this.restore(churchId, id, userId);
             success++;
             break;
-          case 'hide':
-            category.is_visible = false;
+          case 'activate':
+            category.status = ContentStatus.ACTIVE;
             category.updated_by = userId;
             await this.categoriesRepository.save(category);
             success++;
             break;
-          case 'show':
-            category.is_visible = true;
+          case 'deactivate':
+            category.status = ContentStatus.INACTIVE;
             category.updated_by = userId;
             await this.categoriesRepository.save(category);
             success++;
@@ -318,7 +319,7 @@ export class CategoriesService {
       },
       relations: ['children'],
       order: {
-        sort_order: 'ASC',
+        order: 'ASC',
       },
     });
   }
@@ -331,7 +332,7 @@ export class CategoriesService {
       },
       relations: ['children'],
       order: {
-        sort_order: 'ASC',
+        order: 'ASC',
       },
     });
   }

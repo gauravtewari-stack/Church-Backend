@@ -13,6 +13,8 @@ export enum ContentStatus {
   PUBLISHED = 'published',
   SCHEDULED = 'scheduled',
   ARCHIVED = 'archived',
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
 }
 
 // User Role
@@ -255,9 +257,9 @@ export enum SortOrder {
 // Payment Method
 export enum PaymentMethod {
   CREDIT_CARD = 'credit_card',
+  DEBIT_CARD = 'debit_card',
   BANK_TRANSFER = 'bank_transfer',
   PAYPAL = 'paypal',
-  STRIPE = 'stripe',
   CASH = 'cash',
   CHECK = 'check',
   OTHER = 'other',

@@ -121,12 +121,12 @@ export class MediaService {
     const media = this.mediaRepository.create({
       church_id: churchId,
       title: dto.title,
-      original_filename: file.originalname,
+      file_name: file.originalname,
       file_path: filePath,
-      file_url: fileUrl,
+      url: fileUrl,
       mime_type: mimeType,
-      file_size: BigInt(file.size),
-      media_type: mediaType,
+      file_size: file.size,
+      file_type: mediaType,
       description: dto.description,
       tags: dto.tags || [],
       alt_text: dto.alt_text,
@@ -157,13 +157,13 @@ export class MediaService {
 
     if (query.search) {
       qb = qb.andWhere(
-        '(media.title ILIKE :search OR media.description ILIKE :search OR media.original_filename ILIKE :search)',
+        '(media.title ILIKE :search OR media.description ILIKE :search OR media.file_name ILIKE :search)',
         { search: `%${query.search}%` },
       );
     }
 
-    if (query.media_type) {
-      qb = qb.andWhere('media.media_type = :mediaType', { mediaType: query.media_type });
+    if (query.file_type) {
+      qb = qb.andWhere('media.file_type = :fileType', { fileType: query.file_type });
     }
 
     if (query.folder) {
@@ -391,12 +391,12 @@ export class MediaService {
       SELECT
         COALESCE(SUM(file_size), 0) as total_bytes,
         COUNT(*) as total_files,
-        media_type,
+        file_type,
         COUNT(*) as type_count,
         COALESCE(SUM(file_size), 0) as type_bytes
       FROM media
       WHERE church_id = $1 AND deleted_at IS NULL
-      GROUP BY media_type
+      GROUP BY file_type
       `,
       [churchId],
     );
@@ -406,7 +406,7 @@ export class MediaService {
     let totalFiles = 0;
 
     for (const row of result) {
-      byType[row.media_type] = {
+      byType[row.file_type] = {
         count: parseInt(row.type_count),
         bytes: BigInt(row.type_bytes),
       };
@@ -439,17 +439,17 @@ export class MediaService {
 
     const byType = await this.mediaRepository.query(
       `
-      SELECT media_type, COUNT(*) as count
+      SELECT file_type, COUNT(*) as count
       FROM media
       WHERE church_id = $1 AND deleted_at IS NULL
-      GROUP BY media_type
+      GROUP BY file_type
       `,
       [churchId],
     );
 
     const typeMap: any = {};
     for (const row of byType) {
-      typeMap[row.media_type] = parseInt(row.count);
+      typeMap[row.file_type] = parseInt(row.count);
     }
 
     const recent = await this.mediaRepository.find({
@@ -508,11 +508,11 @@ export class MediaService {
       id: media.id,
       church_id: media.church_id,
       title: media.title,
-      original_filename: media.original_filename,
-      file_url: media.file_url,
+      file_name: media.file_name,
+      url: media.url,
       mime_type: media.mime_type,
       file_size: media.file_size,
-      media_type: media.media_type,
+      file_type: media.file_type,
       width: media.width,
       height: media.height,
       duration_seconds: media.duration_seconds,

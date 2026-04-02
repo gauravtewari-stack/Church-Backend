@@ -32,11 +32,11 @@ export class CreateSermonDto {
 
   @IsOptional()
   @IsString()
-  speaker_name?: string;
+  speaker?: string;
 
   @IsOptional()
   @IsString()
-  speaker_title?: string;
+  series?: string;
 
   @IsOptional()
   @IsDate()
@@ -50,7 +50,7 @@ export class CreateSermonDto {
 
   @IsOptional()
   @IsUrl()
-  featured_image_url?: string;
+  thumbnail_url?: string;
 
   @IsOptional()
   @IsUrl()
@@ -105,11 +105,11 @@ export class UpdateSermonDto {
 
   @IsOptional()
   @IsString()
-  speaker_name?: string;
+  speaker?: string;
 
   @IsOptional()
   @IsString()
-  speaker_title?: string;
+  series?: string;
 
   @IsOptional()
   @IsDate()
@@ -123,7 +123,7 @@ export class UpdateSermonDto {
 
   @IsOptional()
   @IsUrl()
-  featured_image_url?: string;
+  thumbnail_url?: string;
 
   @IsOptional()
   @IsUrl()
@@ -176,7 +176,7 @@ export class SermonQueryDto {
 
   @IsOptional()
   @IsString()
-  speaker_name?: string;
+  speaker?: string;
 
   @IsOptional()
   @IsDate()
@@ -194,7 +194,7 @@ export class SermonQueryDto {
 
   @IsOptional()
   @IsString()
-  sort_by?: 'created_at' | 'published_at' | 'sermon_date' | 'view_count' | 'title' =
+  sort_by?: 'created_at' | 'published_date' | 'sermon_date' | 'views_count' | 'title' =
     'created_at';
 
   @IsOptional()
@@ -239,7 +239,7 @@ export class PublishSermonDto {
   @IsOptional()
   @IsDate()
   @Type(() => Date)
-  published_at?: Date;
+  published_date?: string;
 }
 
 export class ScheduleSermonDto {

@@ -45,17 +45,16 @@ async function seed() {
     // 2. Create super admin user
     const superAdminPassword = await bcryptjs.hash('Admin@12345', 10);
     await dataSource.query(
-      `INSERT INTO users (id, church_id, email, password_hash, first_name, last_name, role, is_active, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO users (id, church_id, email, password_hash, name, role, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         superAdminUserId,
         churchId,
         'admin@gracechurch.com',
         superAdminPassword,
-        'Admin',
-        'User',
+        'Admin User',
         'super_admin',
-        1,
+        'active',
         now,
         now,
       ],
@@ -65,17 +64,16 @@ async function seed() {
     // 3. Create church admin user
     const adminPassword = await bcryptjs.hash('Admin@12345', 10);
     await dataSource.query(
-      `INSERT INTO users (id, church_id, email, password_hash, first_name, last_name, role, is_active, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO users (id, church_id, email, password_hash, name, role, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         adminUserId,
         churchId,
         'manager@gracechurch.com',
         adminPassword,
-        'Manager',
-        'User',
+        'Manager User',
         'church_admin',
-        1,
+        'active',
         now,
         now,
       ],
@@ -85,17 +83,16 @@ async function seed() {
     // 4. Create editor user
     const editorPassword = await bcryptjs.hash('Editor@12345', 10);
     await dataSource.query(
-      `INSERT INTO users (id, church_id, email, password_hash, first_name, last_name, role, is_active, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO users (id, church_id, email, password_hash, name, role, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         editorUserId,
         churchId,
         'editor@gracechurch.com',
         editorPassword,
-        'John',
-        'Editor',
+        'John Editor',
         'editor',
-        1,
+        'active',
         now,
         now,
       ],
@@ -149,7 +146,7 @@ async function seed() {
 
     for (const cat of categories) {
       await dataSource.query(
-        `INSERT INTO categories (id, church_id, name, slug, description, sort_order, is_visible, created_at, updated_at)
+        `INSERT INTO categories (id, church_id, name, slug, description, "order", status, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           uuidv4(),
@@ -158,7 +155,7 @@ async function seed() {
           cat.slug,
           cat.description,
           cat.order,
-          1,
+          'active',
           now,
           now,
         ],

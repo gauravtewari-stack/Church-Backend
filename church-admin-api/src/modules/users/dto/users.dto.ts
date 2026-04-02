@@ -48,17 +48,11 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ description: 'First name', example: 'John' })
+  @ApiProperty({ description: 'Full name', example: 'John Doe' })
   @IsString()
   @MinLength(2)
   @MaxLength(255)
-  first_name: string;
-
-  @ApiProperty({ description: 'Last name', example: 'Doe' })
-  @IsString()
-  @MinLength(2)
-  @MaxLength(255)
-  last_name: string;
+  name: string;
 
   @ApiPropertyOptional({ description: 'Bio / about' })
   @IsOptional()
@@ -101,19 +95,12 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto {
-  @ApiPropertyOptional({ description: 'First name' })
+  @ApiPropertyOptional({ description: 'Full name' })
   @IsOptional()
   @IsString()
   @MinLength(2)
   @MaxLength(255)
-  first_name?: string;
-
-  @ApiPropertyOptional({ description: 'Last name' })
-  @IsOptional()
-  @IsString()
-  @MinLength(2)
-  @MaxLength(255)
-  last_name?: string;
+  name?: string;
 
   @ApiPropertyOptional({ description: 'Bio' })
   @IsOptional()
@@ -149,10 +136,10 @@ export class UpdateUserDto {
   @Type(() => SocialLinksDto)
   social_links?: SocialLinks;
 
-  @ApiPropertyOptional({ description: 'Active status' })
+  @ApiPropertyOptional({ description: 'Status (active/inactive/suspended)' })
   @IsOptional()
-  @IsBoolean()
-  is_active?: boolean;
+  @IsString()
+  status?: string;
 }
 
 export class InviteUserDto {
@@ -161,17 +148,11 @@ export class InviteUserDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ description: 'First name', example: 'Jane' })
+  @ApiProperty({ description: 'Full name', example: 'Jane Smith' })
   @IsString()
   @MinLength(2)
   @MaxLength(255)
-  first_name: string;
-
-  @ApiProperty({ description: 'Last name', example: 'Smith' })
-  @IsString()
-  @MinLength(2)
-  @MaxLength(255)
-  last_name: string;
+  name: string;
 
   @ApiPropertyOptional({ description: 'Role to assign', example: 'editor' })
   @IsOptional()
@@ -196,8 +177,7 @@ export class UserProfileDto {
   @ApiProperty() id: string;
   @ApiProperty() user_id: string;
   @ApiProperty() church_id: string;
-  @ApiProperty() first_name: string;
-  @ApiProperty() last_name: string;
+  @ApiProperty() name: string;
   @ApiProperty() email: string;
   @ApiProperty() bio: string;
   @ApiProperty() avatar_url: string;
@@ -205,9 +185,9 @@ export class UserProfileDto {
   @ApiProperty() department: string;
   @ApiProperty() job_title: string;
   @ApiProperty() social_links: SocialLinks;
-  @ApiProperty() is_active: boolean;
+  @ApiProperty() status: string;
   @ApiProperty() role: string;
-  @ApiProperty() last_login_at: Date;
+  @ApiProperty() last_login: string;
   @ApiProperty() created_at: Date;
   @ApiProperty() updated_at: Date;
 }
@@ -215,15 +195,14 @@ export class UserProfileDto {
 export class UserListResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() user_id: string;
-  @ApiProperty() first_name: string;
-  @ApiProperty() last_name: string;
+  @ApiProperty() name: string;
   @ApiProperty() email: string;
   @ApiProperty() avatar_url: string;
   @ApiProperty() job_title: string;
   @ApiProperty() department: string;
-  @ApiProperty() is_active: boolean;
+  @ApiProperty() status: string;
   @ApiProperty() role: string;
-  @ApiProperty() last_login_at: Date;
+  @ApiProperty() last_login: string;
   @ApiProperty() created_at: Date;
 }
 
@@ -251,11 +230,10 @@ export class UserListQueryDto {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by active status' })
+  @ApiPropertyOptional({ description: 'Filter by status' })
   @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true)
-  is_active?: boolean;
+  @IsString()
+  status?: string;
 
   @ApiPropertyOptional({ description: 'Filter by role' })
   @IsOptional()

@@ -74,10 +74,10 @@ export class MediaQueryDto {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by media type', enum: MediaType })
+  @ApiPropertyOptional({ description: 'Filter by file type', enum: MediaType })
   @IsOptional()
-  @IsEnum(MediaType)
-  media_type?: MediaType;
+  @IsString()
+  file_type?: string;
 
   @ApiPropertyOptional({ description: 'Filter by folder' })
   @IsOptional()
@@ -142,11 +142,11 @@ export class MediaResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() church_id: string;
   @ApiProperty() title: string;
-  @ApiProperty() original_filename: string;
-  @ApiProperty() file_url: string;
+  @ApiProperty() file_name: string;
+  @ApiProperty() url: string;
   @ApiProperty() mime_type: string;
-  @ApiProperty() file_size: bigint;
-  @ApiProperty({ enum: MediaType }) media_type: MediaType;
+  @ApiProperty() file_size: number;
+  @ApiProperty() file_type: string;
   @ApiPropertyOptional() width: number | null;
   @ApiPropertyOptional() height: number | null;
   @ApiPropertyOptional() duration_seconds: number | null;

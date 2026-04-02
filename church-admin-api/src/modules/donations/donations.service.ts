@@ -24,6 +24,7 @@ import {
   CampaignQueryDto,
   RecordTransactionDto,
   CreateTransactionDto,
+  UpdateTransactionDto,
   TransactionQueryDto,
   DonationStatsDto,
   CampaignProgressDto,
@@ -160,7 +161,7 @@ export class DonationsService {
       'end_date',
       'title',
       'current_amount',
-      'target_amount',
+      'goal_amount',
     ];
     const sortField = validSortFields.includes(sort_by)
       ? sort_by
@@ -351,19 +352,29 @@ export class DonationsService {
       createTransactionDto.campaign_id,
     );
 
-    if (campaign.status !== ContentStatus.PUBLISHED) {
-      throw new BadRequestException('Campaign is not active');
-    }
+    const status = createTransactionDto.status || PaymentStatus.COMPLETED;
 
     const transaction = this.transactionsRepository.create({
       ...createTransactionDto,
       church_id: churchId,
       campaign_id: createTransactionDto.campaign_id,
-      payment_provider: 'manual', // API donations are marked as manual
-      status: PaymentStatus.PENDING,
+      payment_provider: 'manual',
+      status,
+      donated_at: createTransactionDto.donated_at
+        ? new Date(createTransactionDto.donated_at)
+        : new Date(),
     });
 
-    return this.transactionsRepository.save(transaction);
+    const savedTransaction = await this.transactionsRepository.save(transaction);
+
+    // Update campaign current_amount if completed
+    if (status === PaymentStatus.COMPLETED) {
+      campaign.current_amount =
+        (campaign.current_amount || 0) + createTransactionDto.amount;
+      await this.campaignsRepository.save(campaign);
+    }
+
+    return savedTransaction;
   }
 
   /**
@@ -377,6 +388,7 @@ export class DonationsService {
       campaign_id,
       donor_name,
       donor_email,
+      payment_method,
       status,
       date_from,
       date_to,
@@ -407,6 +419,11 @@ export class DonationsService {
       query.andWhere('transaction.donor_email = :donor_email', {
         donor_email,
       });
+    }
+
+    // Apply payment method filter
+    if (payment_method) {
+      query.andWhere('transaction.payment_method = :payment_method', { payment_method });
     }
 
     // Apply status filter
@@ -461,7 +478,7 @@ export class DonationsService {
       Math.max(page, 1),
       safeLimit,
       total,
-      { campaign_id, donor_name, donor_email, status, date_from, date_to },
+      { campaign_id, donor_name, donor_email, payment_method, status, date_from, date_to },
     );
   }
 
@@ -621,14 +638,14 @@ export class DonationsService {
     });
 
     const percentage =
-      campaign.target_amount && campaign.target_amount > 0
-        ? (campaign.current_amount / campaign.target_amount) * 100
+      campaign.goal_amount && campaign.goal_amount > 0
+        ? (campaign.current_amount / campaign.goal_amount) * 100
         : 0;
 
     return {
       campaign_id: campaign.id,
       title: campaign.title,
-      target_amount: campaign.target_amount || 0,
+      goal_amount: campaign.goal_amount || 0,
       current_amount: campaign.current_amount,
       currency: campaign.currency,
       percentage: Math.min(percentage, 100),
@@ -670,5 +687,81 @@ export class DonationsService {
     }
 
     return this.transactionsRepository.save(transaction);
+  }
+
+  /**
+   * Update a donation transaction
+   */
+  async updateTransaction(
+    churchId: string,
+    transactionId: string,
+    updateTransactionDto: UpdateTransactionDto,
+  ): Promise<DonationTransaction> {
+    const transaction = await this.transactionsRepository.findOne({
+      where: { id: transactionId, church_id: churchId },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException(`Transaction with ID ${transactionId} not found`);
+    }
+
+    const oldStatus = transaction.status;
+    const oldAmount = transaction.amount;
+
+    Object.assign(transaction, {
+      ...updateTransactionDto,
+      donated_at: updateTransactionDto.donated_at
+        ? new Date(updateTransactionDto.donated_at)
+        : transaction.donated_at,
+    });
+
+    const saved = await this.transactionsRepository.save(transaction);
+
+    // Adjust campaign amount if status or amount changed
+    if (updateTransactionDto.status || updateTransactionDto.amount) {
+      const campaignId = updateTransactionDto.campaign_id || transaction.campaign_id;
+      const campaign = await this.findCampaign(churchId, campaignId);
+
+      // Subtract old amount if it was completed
+      if (oldStatus === PaymentStatus.COMPLETED) {
+        campaign.current_amount = (campaign.current_amount || 0) - oldAmount;
+      }
+      // Add new amount if now completed
+      if (saved.status === PaymentStatus.COMPLETED) {
+        campaign.current_amount = (campaign.current_amount || 0) + saved.amount;
+      }
+
+      await this.campaignsRepository.save(campaign);
+    }
+
+    return saved;
+  }
+
+  /**
+   * Delete a donation transaction
+   */
+  async deleteTransaction(
+    churchId: string,
+    transactionId: string,
+  ): Promise<void> {
+    const transaction = await this.transactionsRepository.findOne({
+      where: { id: transactionId, church_id: churchId },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException(`Transaction with ID ${transactionId} not found`);
+    }
+
+    // If transaction was completed, subtract from campaign amount
+    if (transaction.status === PaymentStatus.COMPLETED) {
+      const campaign = await this.findCampaign(churchId, transaction.campaign_id);
+      campaign.current_amount = Math.max(
+        (campaign.current_amount || 0) - transaction.amount,
+        0,
+      );
+      await this.campaignsRepository.save(campaign);
+    }
+
+    await this.transactionsRepository.remove(transaction);
   }
 }

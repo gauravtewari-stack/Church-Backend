@@ -31,11 +31,17 @@ export class SpiritualResourceEntity {
   @Column({ type: 'varchar', length: 300, unique: true })
   slug: string;
 
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   author: string;
 
   @Column({ type: 'text' })
   content: string;
+
+  @Column({ type: 'varchar', length: 36, nullable: true })
+  category_id: string;
 
   @Column({ type: 'text', nullable: true })
   summary: string;
@@ -44,13 +50,16 @@ export class SpiritualResourceEntity {
   featured_image_url: string;
 
   @Column({ type: 'varchar', length: 50, default: 'article' })
-  resource_type: 'article' | 'devotional' | 'book' | 'pdf';
+  resource_type: string;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   file_url: string;
 
-  @Column({ type: 'varchar', length: 50, default: 'draft' })
-  status: 'draft' | 'published' | 'scheduled' | 'archived';
+  @Column({ type: 'varchar', length: 50, default: 'active' })
+  status: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  published_date: string;
 
   @Column({ type: 'datetime', nullable: true })
   published_at: Date;

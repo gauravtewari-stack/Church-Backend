@@ -22,11 +22,21 @@ export class CreateResourceDto {
   @MaxLength(255)
   title: string;
 
+  @ApiPropertyOptional({ description: 'Resource description' })
+  @IsString()
+  @IsOptional()
+  description: string;
+
   @ApiProperty({ description: 'Resource content (HTML or markdown)', example: '<p>Prayer is a powerful tool...</p>' })
   @IsString()
   @IsNotEmpty()
   @MinLength(10)
   content: string;
+
+  @ApiPropertyOptional({ description: 'Category ID' })
+  @IsUUID()
+  @IsOptional()
+  category_id: string;
 
   @ApiPropertyOptional({ description: 'Short summary', example: 'A guide to developing a meaningful prayer life' })
   @IsString()
@@ -45,20 +55,25 @@ export class CreateResourceDto {
   @IsOptional()
   featured_image_url: string;
 
-  @ApiPropertyOptional({ description: 'Resource type', enum: ['article', 'devotional', 'book', 'pdf'], default: 'article' })
-  @IsEnum(['article', 'devotional', 'book', 'pdf'])
+  @ApiPropertyOptional({ description: 'Resource type', enum: ['article', 'devotional', 'book', 'pdf', 'devotional', 'prayer_guide', 'study'], default: 'article' })
+  @IsString()
   @IsOptional()
-  resource_type: 'article' | 'devotional' | 'book' | 'pdf' = 'article';
+  resource_type: string = 'article';
 
   @ApiPropertyOptional({ description: 'File URL for downloadable resources' })
   @IsUrl()
   @IsOptional()
   file_url: string;
 
-  @ApiPropertyOptional({ description: 'Status', enum: ['draft', 'published', 'scheduled', 'archived'], default: 'draft' })
-  @IsEnum(['draft', 'published', 'scheduled', 'archived'])
+  @ApiPropertyOptional({ description: 'Status', default: 'active' })
+  @IsString()
   @IsOptional()
-  status: 'draft' | 'published' | 'scheduled' | 'archived' = 'draft';
+  status: string = 'active';
+
+  @ApiPropertyOptional({ description: 'Published date (ISO string)' })
+  @IsString()
+  @IsOptional()
+  published_date: string;
 
   @ApiPropertyOptional({ description: 'Scheduled publication date' })
   @IsDateString()
@@ -97,11 +112,21 @@ export class UpdateResourceDto {
   @MaxLength(255)
   title: string;
 
+  @ApiPropertyOptional({ description: 'Resource description' })
+  @IsString()
+  @IsOptional()
+  description: string;
+
   @ApiPropertyOptional({ description: 'Resource content' })
   @IsString()
   @IsOptional()
   @MinLength(10)
   content: string;
+
+  @ApiPropertyOptional({ description: 'Category ID' })
+  @IsUUID()
+  @IsOptional()
+  category_id: string;
 
   @ApiPropertyOptional({ description: 'Short summary' })
   @IsString()
@@ -120,20 +145,25 @@ export class UpdateResourceDto {
   @IsOptional()
   featured_image_url: string;
 
-  @ApiPropertyOptional({ description: 'Resource type', enum: ['article', 'devotional', 'book', 'pdf'] })
-  @IsEnum(['article', 'devotional', 'book', 'pdf'])
+  @ApiPropertyOptional({ description: 'Resource type' })
+  @IsString()
   @IsOptional()
-  resource_type: 'article' | 'devotional' | 'book' | 'pdf';
+  resource_type: string;
 
   @ApiPropertyOptional({ description: 'File URL' })
   @IsUrl()
   @IsOptional()
   file_url: string;
 
-  @ApiPropertyOptional({ description: 'Status', enum: ['draft', 'published', 'scheduled', 'archived'] })
-  @IsEnum(['draft', 'published', 'scheduled', 'archived'])
+  @ApiPropertyOptional({ description: 'Status' })
+  @IsString()
   @IsOptional()
-  status: 'draft' | 'published' | 'scheduled' | 'archived';
+  status: string;
+
+  @ApiPropertyOptional({ description: 'Published date' })
+  @IsString()
+  @IsOptional()
+  published_date: string;
 
   @ApiPropertyOptional({ description: 'Scheduled date' })
   @IsDateString()

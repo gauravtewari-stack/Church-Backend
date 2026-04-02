@@ -31,7 +31,7 @@ export class DonationCampaign {
   description: string;
 
   @Column({ type: 'real', nullable: true })
-  target_amount: number;
+  goal_amount: number;
 
   @Column({ type: 'real', default: 0 })
   current_amount: number;
@@ -40,7 +40,10 @@ export class DonationCampaign {
   currency: string;
 
   @Column('varchar', { length: 500, nullable: true })
-  featured_image_url: string;
+  image_url: string;
+
+  @Column('varchar', { length: 50, nullable: true })
+  campaign_type: string; // 'general' | 'building' | 'missions' | 'education' | 'charity' | 'emergency'
 
   @Column({ type: 'varchar', length: 50, default: ContentStatus.DRAFT })
   status: ContentStatus;

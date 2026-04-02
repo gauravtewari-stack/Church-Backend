@@ -3,11 +3,12 @@ import {
   IsOptional,
   IsUUID,
   IsInt,
-  IsBoolean,
+  IsEnum,
   MinLength,
   MaxLength,
   Matches,
 } from 'class-validator';
+import { ContentStatus } from '../../../common/enums';
 
 export class CreateCategoryDto {
   @IsString()
@@ -37,11 +38,11 @@ export class CreateCategoryDto {
 
   @IsOptional()
   @IsInt()
-  sort_order?: number = 0;
+  order?: number = 0;
 
   @IsOptional()
-  @IsBoolean()
-  is_visible?: boolean = true;
+  @IsEnum(ContentStatus)
+  status?: ContentStatus = ContentStatus.ACTIVE;
 }
 
 export class UpdateCategoryDto {
@@ -73,11 +74,11 @@ export class UpdateCategoryDto {
 
   @IsOptional()
   @IsInt()
-  sort_order?: number;
+  order?: number;
 
   @IsOptional()
-  @IsBoolean()
-  is_visible?: boolean;
+  @IsEnum(ContentStatus)
+  status?: ContentStatus;
 }
 
 export class CategoryQueryDto {
@@ -86,8 +87,8 @@ export class CategoryQueryDto {
   search?: string;
 
   @IsOptional()
-  @IsBoolean()
-  is_visible?: boolean;
+  @IsEnum(ContentStatus)
+  status?: ContentStatus;
 
   @IsOptional()
   @IsUUID()
@@ -95,11 +96,11 @@ export class CategoryQueryDto {
 
   @IsOptional()
   @IsString()
-  sort_by?: 'name' | 'sort_order' | 'created_at' = 'sort_order';
+  sort_by?: 'name' | 'order' | 'created_at' = 'order';
 
   @IsOptional()
   @IsString()
-  order?: 'ASC' | 'DESC' = 'ASC';
+  order_dir?: 'ASC' | 'DESC' = 'ASC';
 
   @IsOptional()
   @IsInt()
@@ -110,8 +111,8 @@ export class CategoryQueryDto {
   limit?: number = 10;
 
   @IsOptional()
-  @IsBoolean()
-  include_children?: boolean = false;
+  @IsString()
+  include_children?: string;
 }
 
 export class ReorderCategoryDto {
@@ -119,7 +120,7 @@ export class ReorderCategoryDto {
   id: string;
 
   @IsInt()
-  sort_order: number;
+  order: number;
 }
 
 export class BulkCategoryActionDto {
@@ -127,5 +128,5 @@ export class BulkCategoryActionDto {
   ids: string[];
 
   @IsString()
-  action: 'delete' | 'restore' | 'hide' | 'show';
+  action: 'delete' | 'restore' | 'activate' | 'deactivate';
 }

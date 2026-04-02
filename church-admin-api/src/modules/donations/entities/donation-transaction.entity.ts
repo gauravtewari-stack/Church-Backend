@@ -3,6 +3,7 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  UpdateDateColumn,
   Index,
 } from 'typeorm';
 import { PaymentStatus, PaymentMethod } from '../../../common/enums';
@@ -28,6 +29,9 @@ export class DonationTransaction {
 
   @Column('varchar', { length: 255 })
   donor_email: string;
+
+  @Column('varchar', { length: 50, nullable: true })
+  donor_phone: string;
 
   @Column({ type: 'real' })
   amount: number;
@@ -59,6 +63,12 @@ export class DonationTransaction {
   @Column({ type: 'simple-json', nullable: true })
   metadata: Record<string, any>; // Store additional data like recurring frequency, next charge date, etc.
 
+  @Column({ type: 'datetime', nullable: true })
+  donated_at: Date;
+
   @CreateDateColumn()
   created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }

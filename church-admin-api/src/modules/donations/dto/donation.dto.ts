@@ -34,7 +34,7 @@ export class CreateCampaignDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  target_amount: number;
+  goal_amount: number;
 
   @IsOptional()
   @IsString()
@@ -44,7 +44,12 @@ export class CreateCampaignDto {
   @IsOptional()
   @IsString()
   @IsUrl()
-  featured_image_url: string;
+  image_url: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  campaign_type: string; // 'general' | 'building' | 'missions' | 'education' | 'charity' | 'emergency'
 
   @IsOptional()
   @IsEnum(ContentStatus)
@@ -89,7 +94,7 @@ export class UpdateCampaignDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  target_amount: number;
+  goal_amount: number;
 
   @IsOptional()
   @IsString()
@@ -99,7 +104,12 @@ export class UpdateCampaignDto {
   @IsOptional()
   @IsString()
   @IsUrl()
-  featured_image_url: string;
+  image_url: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  campaign_type: string;
 
   @IsOptional()
   @IsEnum(ContentStatus)
@@ -238,6 +248,11 @@ export class CreateTransactionDto {
   @IsEmail()
   donor_email: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  donor_phone: string;
+
   @IsNumber()
   @Min(0.01)
   amount: number;
@@ -256,6 +271,10 @@ export class CreateTransactionDto {
   transaction_id: string;
 
   @IsOptional()
+  @IsEnum(PaymentStatus)
+  status: PaymentStatus = PaymentStatus.COMPLETED;
+
+  @IsOptional()
   @IsBoolean()
   is_anonymous: boolean = false;
 
@@ -264,12 +283,57 @@ export class CreateTransactionDto {
   is_recurring: boolean = false;
 
   @IsOptional()
+  @IsDateString()
+  donated_at: string;
+
+  @IsOptional()
   @IsString()
   notes: string;
 
   @IsOptional()
   @IsObject()
   metadata: Record<string, any>;
+}
+
+export class UpdateTransactionDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  donor_name: string;
+
+  @IsOptional()
+  @IsEmail()
+  donor_email: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  donor_phone: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0.01)
+  amount: number;
+
+  @IsOptional()
+  @IsUUID('4')
+  campaign_id: string;
+
+  @IsOptional()
+  @IsString()
+  payment_method: string;
+
+  @IsOptional()
+  @IsEnum(PaymentStatus)
+  status: PaymentStatus;
+
+  @IsOptional()
+  @IsDateString()
+  donated_at: string;
+
+  @IsOptional()
+  @IsString()
+  notes: string;
 }
 
 export class TransactionQueryDto {
@@ -284,6 +348,10 @@ export class TransactionQueryDto {
   @IsOptional()
   @IsEmail()
   donor_email: string;
+
+  @IsOptional()
+  @IsString()
+  payment_method: string;
 
   @IsOptional()
   @IsEnum(PaymentStatus)
@@ -346,7 +414,7 @@ export class DonationStatsDto {
 export class CampaignProgressDto {
   campaign_id: string;
   title: string;
-  target_amount: number;
+  goal_amount: number;
   current_amount: number;
   currency: string;
   percentage: number;
@@ -375,10 +443,11 @@ export class CampaignResponseDto {
   title: string;
   slug: string;
   description: string;
-  target_amount: number;
+  goal_amount: number;
   current_amount: number;
   currency: string;
-  featured_image_url: string;
+  image_url: string;
+  campaign_type: string;
   status: ContentStatus;
   start_date: Date;
   end_date: Date;
@@ -400,6 +469,7 @@ export class TransactionResponseDto {
   campaign_id: string;
   donor_name: string;
   donor_email: string;
+  donor_phone: string;
   amount: number;
   currency: string;
   payment_method: string;
@@ -408,7 +478,9 @@ export class TransactionResponseDto {
   status: string;
   is_anonymous: boolean;
   is_recurring: boolean;
+  donated_at: Date;
   notes: string;
   metadata: Record<string, any>;
   created_at: Date;
+  updated_at: Date;
 }

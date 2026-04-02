@@ -9,6 +9,7 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
+import { ContentStatus } from '../../../common/enums';
 
 @Entity('categories')
 export class Category {
@@ -47,10 +48,10 @@ export class Category {
   children: Category[];
 
   @Column('integer', { default: 0 })
-  sort_order: number;
+  order: number;
 
-  @Column('boolean', { default: true })
-  is_visible: boolean;
+  @Column({ type: 'varchar', length: 50, default: ContentStatus.ACTIVE })
+  status: ContentStatus;
 
   @CreateDateColumn()
   created_at: Date;

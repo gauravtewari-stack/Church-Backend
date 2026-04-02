@@ -41,31 +41,43 @@ export class CreateHymnDto {
   @MaxLength(255)
   composer: string;
 
-  @ApiPropertyOptional({ description: 'Hymn number in hymnal', example: 1 })
-  @IsInt()
+  @ApiPropertyOptional({ description: 'Hymn number in hymnal', example: '1' })
+  @IsString()
   @IsOptional()
-  @Min(1)
-  hymn_number: number;
+  @MaxLength(50)
+  hymn_number: string;
+
+  @ApiPropertyOptional({ description: 'Musical key', example: 'G Major' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(50)
+  key: string;
+
+  @ApiPropertyOptional({ description: 'Tempo', example: 'Moderately Slow' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  tempo: string;
 
   @ApiPropertyOptional({ description: 'Audio file URL', example: 'https://example.com/audio/amazing-grace.mp3' })
   @IsUrl()
   @IsOptional()
   audio_url: string;
 
-  @ApiPropertyOptional({ description: 'Sheet music URL' })
+  @ApiPropertyOptional({ description: 'MIDI file URL' })
   @IsUrl()
   @IsOptional()
-  sheet_music_url: string;
+  midi_url: string;
 
   @ApiPropertyOptional({ description: 'Featured image URL' })
   @IsUrl()
   @IsOptional()
   featured_image_url: string;
 
-  @ApiPropertyOptional({ description: 'Publication status', enum: ['draft', 'published', 'scheduled', 'archived'], default: 'draft' })
-  @IsEnum(['draft', 'published', 'scheduled', 'archived'])
+  @ApiPropertyOptional({ description: 'Publication status', enum: ['draft', 'published', 'scheduled', 'archived', 'active', 'inactive'], default: 'active' })
+  @IsString()
   @IsOptional()
-  status: 'draft' | 'published' | 'scheduled' | 'archived' = 'draft';
+  status: string = 'active';
 
   @ApiPropertyOptional({ description: 'Publication date' })
   @IsDateString()
@@ -116,30 +128,42 @@ export class UpdateHymnDto {
   composer: string;
 
   @ApiPropertyOptional({ description: 'Hymn number' })
-  @IsInt()
+  @IsString()
   @IsOptional()
-  @Min(1)
-  hymn_number: number;
+  @MaxLength(50)
+  hymn_number: string;
+
+  @ApiPropertyOptional({ description: 'Musical key' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(50)
+  key: string;
+
+  @ApiPropertyOptional({ description: 'Tempo' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  tempo: string;
 
   @ApiPropertyOptional({ description: 'Audio file URL' })
   @IsUrl()
   @IsOptional()
   audio_url: string;
 
-  @ApiPropertyOptional({ description: 'Sheet music URL' })
+  @ApiPropertyOptional({ description: 'MIDI file URL' })
   @IsUrl()
   @IsOptional()
-  sheet_music_url: string;
+  midi_url: string;
 
   @ApiPropertyOptional({ description: 'Featured image URL' })
   @IsUrl()
   @IsOptional()
   featured_image_url: string;
 
-  @ApiPropertyOptional({ description: 'Status', enum: ['draft', 'published', 'scheduled', 'archived'] })
-  @IsEnum(['draft', 'published', 'scheduled', 'archived'])
+  @ApiPropertyOptional({ description: 'Status' })
+  @IsString()
   @IsOptional()
-  status: 'draft' | 'published' | 'scheduled' | 'archived';
+  status: string;
 
   @ApiPropertyOptional({ description: 'Publication date' })
   @IsDateString()

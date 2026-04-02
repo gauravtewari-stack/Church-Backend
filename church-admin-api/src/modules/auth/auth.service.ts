@@ -41,7 +41,7 @@ export class AuthService {
    * Register a new user
    */
   async register(registerDto: RegisterDto): Promise<TokenResponseDto> {
-    const { email, password, first_name, last_name, church_id, phone } = registerDto;
+    const { email, password, name, church_id, phone } = registerDto;
 
     // Check if user already exists
     const existingUser = await this.userRepository.findOne({ where: { email } });
@@ -56,12 +56,11 @@ export class AuthService {
     const user = this.userRepository.create({
       email,
       password_hash,
-      first_name,
-      last_name,
+      name,
       church_id,
       phone,
       role: UserRole.EDITOR, // Default role
-      is_active: true,
+      status: 'active',
     });
 
     const savedUser = await this.userRepository.save(user);
@@ -76,7 +75,7 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userRepository.findOne({ where: { email } });
 
-    if (!user || !user.is_active) {
+    if (!user || user.status !== 'active') {
       return null;
     }
 
@@ -102,7 +101,7 @@ export class AuthService {
     }
 
     // Update last login
-    user.last_login_at = new Date();
+    user.last_login = new Date().toISOString();
     await this.userRepository.save(user);
 
     // Generate tokens
@@ -183,7 +182,7 @@ export class AuthService {
 
       const user = storedToken.user;
 
-      if (!user.is_active) {
+      if (user.status !== 'active') {
         throw new UnauthorizedException('User is inactive');
       }
 
@@ -240,14 +239,13 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name,
+      name: user.name,
       role: user.role,
       church_id: user.church_id,
-      is_active: user.is_active,
+      status: user.status,
       avatar_url: user.avatar_url,
       phone: user.phone,
-      last_login_at: user.last_login_at,
+      last_login: user.last_login,
       created_at: user.created_at,
       updated_at: user.updated_at,
     };

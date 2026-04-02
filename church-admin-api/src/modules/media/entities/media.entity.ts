@@ -22,7 +22,7 @@ export enum MediaStatus {
 }
 
 @Entity('media')
-@Index(['church_id', 'media_type'])
+@Index(['church_id', 'file_type'])
 @Index(['church_id', 'status'])
 @Index(['church_id', 'created_at'])
 export class Media {
@@ -36,22 +36,22 @@ export class Media {
   title: string;
 
   @Column('varchar', { length: 500 })
-  original_filename: string;
+  file_name: string;
 
-  @Column('varchar', { length: 1000 })
+  @Column('varchar', { length: 1000, nullable: true })
   file_path: string;
 
   @Column('varchar', { length: 1000 })
-  file_url: string;
+  url: string;
 
   @Column('varchar', { length: 100 })
   mime_type: string;
 
   @Column({ type: 'integer' })
-  file_size: bigint;
+  file_size: number;
 
   @Column({ type: 'varchar', length: 50 })
-  media_type: MediaType;
+  file_type: string;
 
   @Column('int', { nullable: true })
   width: number | null;

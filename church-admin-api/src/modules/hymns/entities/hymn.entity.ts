@@ -37,20 +37,26 @@ export class HymnEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   composer: string;
 
-  @Column({ type: 'int', nullable: true })
-  hymn_number: number;
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  hymn_number: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  key: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  tempo: string;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   audio_url: string;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  sheet_music_url: string;
+  midi_url: string;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   featured_image_url: string;
 
-  @Column({ type: 'varchar', length: 50, default: 'draft' })
-  status: 'draft' | 'published' | 'scheduled' | 'archived';
+  @Column({ type: 'varchar', length: 50, default: 'active' })
+  status: string;
 
   @Column({ type: 'datetime', nullable: true })
   published_at: Date;

@@ -21,6 +21,7 @@ import {
   UpdateCampaignDto,
   CampaignQueryDto,
   CreateTransactionDto,
+  UpdateTransactionDto,
   TransactionQueryDto,
   DonationStatsDto,
   CampaignProgressDto,
@@ -319,6 +320,55 @@ export class DonationsController {
     return {
       success: true,
       data: result,
+    };
+  }
+
+  /**
+   * Update a donation transaction
+   */
+  @Patch('transactions/:id')
+  @ApiOperation({ summary: 'Update a donation transaction' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction updated successfully',
+    type: DonationTransaction,
+  })
+  async updateTransaction(
+    @Param('id') id: string,
+    @Body() updateTransactionDto: UpdateTransactionDto,
+    @CurrentChurch() churchId: string,
+  ): Promise<{ success: boolean; data: DonationTransaction }> {
+    const transaction = await this.donationsService.updateTransaction(
+      churchId,
+      id,
+      updateTransactionDto,
+    );
+
+    return {
+      success: true,
+      data: transaction,
+    };
+  }
+
+  /**
+   * Delete a donation transaction
+   */
+  @Delete('transactions/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete a donation transaction' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction deleted successfully',
+  })
+  async deleteTransaction(
+    @Param('id') id: string,
+    @CurrentChurch() churchId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    await this.donationsService.deleteTransaction(churchId, id);
+
+    return {
+      success: true,
+      message: 'Transaction deleted successfully',
     };
   }
 

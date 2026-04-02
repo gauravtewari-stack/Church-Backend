@@ -52,7 +52,7 @@ export class SermonsService {
       search,
       status,
       category_id,
-      speaker_name,
+      speaker,
       from_date,
       to_date,
       is_featured,
@@ -70,7 +70,7 @@ export class SermonsService {
     // Apply filters
     if (search) {
       query.andWhere(
-        '(sermon.title ILIKE :search OR sermon.description ILIKE :search OR sermon.speaker_name ILIKE :search)',
+        '(sermon.title ILIKE :search OR sermon.description ILIKE :search OR sermon.speaker ILIKE :search)',
         { search: `%${search}%` },
       );
     }
@@ -90,9 +90,9 @@ export class SermonsService {
       query.leftJoinAndSelect('sermon.categories', 'categories');
     }
 
-    if (speaker_name) {
-      query.andWhere('sermon.speaker_name ILIKE :speaker_name', {
-        speaker_name: `%${speaker_name}%`,
+    if (speaker) {
+      query.andWhere('sermon.speaker ILIKE :speaker', {
+        speaker: `%${speaker}%`,
       });
     }
 
@@ -109,12 +109,12 @@ export class SermonsService {
     }
 
     // Sorting
-    if (sort_by === 'published_at') {
-      query.orderBy('sermon.published_at', order);
+    if (sort_by === 'published_date') {
+      query.orderBy('sermon.published_date', order);
     } else if (sort_by === 'sermon_date') {
       query.orderBy('sermon.sermon_date', order);
-    } else if (sort_by === 'view_count') {
-      query.orderBy('sermon.view_count', order);
+    } else if (sort_by === 'views_count') {
+      query.orderBy('sermon.views_count', order);
     } else if (sort_by === 'title') {
       query.orderBy('sermon.title', order);
     } else {
@@ -212,7 +212,7 @@ export class SermonsService {
     }
 
     sermon.status = ContentStatus.PUBLISHED;
-    sermon.published_at = new Date();
+    sermon.published_date = new Date().toISOString();
     sermon.updated_by = userId;
 
     return this.sermonsRepository.save(sermon);
@@ -318,9 +318,9 @@ export class SermonsService {
       slug,
       title: newTitle,
       status: ContentStatus.DRAFT,
-      published_at: null,
+      published_date: null,
       scheduled_at: null,
-      view_count: 0,
+      views_count: 0,
       created_by: userId,
       updated_by: userId,
     });
@@ -388,7 +388,7 @@ export class SermonsService {
   async incrementViewCount(id: string): Promise<void> {
     await this.sermonsRepository.increment(
       { id },
-      'view_count',
+      'views_count',
       1,
     );
   }

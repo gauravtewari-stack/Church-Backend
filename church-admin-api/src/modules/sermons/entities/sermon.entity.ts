@@ -15,7 +15,7 @@ import { Media } from '../../media/entities/media.entity';
 
 @Entity('sermons')
 @Index(['church_id', 'status', 'deleted_at'])
-@Index(['church_id', 'published_at'])
+@Index(['church_id', 'published_date'])
 @Index(['church_id', 'created_at'])
 @Index(['slug'])
 export class Sermon {
@@ -38,10 +38,10 @@ export class Sermon {
   content: string; // Rich content (HTML)
 
   @Column('varchar', { length: 255, nullable: true })
-  speaker_name: string;
+  speaker: string;
 
   @Column('varchar', { length: 255, nullable: true })
-  speaker_title: string;
+  series: string;
 
   @Column({ type: 'datetime', nullable: true })
   sermon_date: Date;
@@ -50,7 +50,7 @@ export class Sermon {
   duration_minutes: number;
 
   @Column('varchar', { length: 500, nullable: true })
-  featured_image_url: string;
+  thumbnail_url: string;
 
   @Column('varchar', { length: 500, nullable: true })
   video_url: string;
@@ -61,8 +61,8 @@ export class Sermon {
   @Column({ type: 'varchar', length: 50, default: ContentStatus.DRAFT })
   status: ContentStatus;
 
-  @Column({ type: 'datetime', nullable: true })
-  published_at?: Date;
+  @Column('varchar', { length: 255, nullable: true })
+  published_date: string;
 
   @Column({ type: 'datetime', nullable: true })
   scheduled_at?: Date;
@@ -77,7 +77,7 @@ export class Sermon {
   seo_description: string;
 
   @Column('integer', { default: 0 })
-  view_count: number;
+  views_count: number;
 
   @Column({ type: 'simple-array', nullable: true })
   tags: string[];

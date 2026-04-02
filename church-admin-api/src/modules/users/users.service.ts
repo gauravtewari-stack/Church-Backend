@@ -53,15 +53,14 @@ export class UsersService {
       const profile = this.userProfileRepository.create({
         user_id: userId,
         church_id: churchId,
-        first_name: createUserDto.first_name,
-        last_name: createUserDto.last_name,
+        name: createUserDto.name,
         bio: createUserDto.bio,
         avatar_url: createUserDto.avatar_url,
         phone: createUserDto.phone,
         department: createUserDto.department,
         job_title: createUserDto.job_title,
         social_links: createUserDto.social_links || {},
-        is_active: true,
+        status: 'active',
       });
 
       const saved = await this.userProfileRepository.save(profile);
@@ -144,11 +143,11 @@ export class UsersService {
       const where: any = { church_id: churchId, deleted_at: IsNull() };
 
       if (query.search) {
-        where.first_name = Like(`%${query.search}%`);
+        where.name = Like(`%${query.search}%`);
       }
 
-      if (query.is_active !== undefined) {
-        where.is_active = query.is_active;
+      if (query.status) {
+        where.status = query.status;
       }
 
       const [profiles, total] = await this.userProfileRepository.findAndCount({
@@ -323,7 +322,7 @@ export class UsersService {
         throw new NotFoundException('User not found');
       }
 
-      profile.is_active = false;
+      profile.status = 'inactive';
       const updated = await this.userProfileRepository.save(profile);
 
       return this.mapToDto(updated);
@@ -355,7 +354,7 @@ export class UsersService {
         throw new NotFoundException('User not found');
       }
 
-      profile.is_active = true;
+      profile.status = 'active';
       const updated = await this.userProfileRepository.save(profile);
 
       return this.mapToDto(updated);
@@ -387,7 +386,7 @@ export class UsersService {
         throw new NotFoundException('User not found');
       }
 
-      profile.last_login_at = new Date();
+      profile.last_login = new Date().toISOString();
       const updated = await this.userProfileRepository.save(profile);
 
       return this.mapToDto(updated);
@@ -420,7 +419,7 @@ export class UsersService {
     return this.userProfileRepository.count({
       where: {
         church_id: churchId,
-        is_active: true,
+        status: 'active',
         deleted_at: IsNull(),
       },
     });
@@ -443,8 +442,7 @@ export class UsersService {
       id: profile.id,
       user_id: profile.user_id,
       church_id: profile.church_id,
-      first_name: profile.first_name,
-      last_name: profile.last_name,
+      name: profile.name,
       email: '', // Email would come from auth User entity
       bio: profile.bio,
       avatar_url: profile.avatar_url,
@@ -452,9 +450,9 @@ export class UsersService {
       department: profile.department,
       job_title: profile.job_title,
       social_links: profile.social_links,
-      is_active: profile.is_active,
+      status: profile.status,
       role: '', // Role would come from auth User entity
-      last_login_at: profile.last_login_at,
+      last_login: profile.last_login,
       created_at: profile.created_at,
       updated_at: profile.updated_at,
     };
@@ -467,15 +465,14 @@ export class UsersService {
     return {
       id: profile.id,
       user_id: profile.user_id,
-      first_name: profile.first_name,
-      last_name: profile.last_name,
+      name: profile.name,
       email: '', // Email would come from auth User entity
       avatar_url: profile.avatar_url,
       job_title: profile.job_title,
       department: profile.department,
-      is_active: profile.is_active,
+      status: profile.status,
       role: '', // Role would come from auth User entity
-      last_login_at: profile.last_login_at,
+      last_login: profile.last_login,
       created_at: profile.created_at,
     };
   }
