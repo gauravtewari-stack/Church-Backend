@@ -11,7 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import { ModulePage } from './pages/ModulePage';
 import { StatusBadge } from './components/StatusBadge';
-import type { Sermon, Event, Category, DonationCampaign, SpiritualResource, Hymn, RadioStation, LiveStream, MediaFile, TableColumn, FormField } from './lib/types';
+import type { Sermon, Category, DonationCampaign, SpiritualResource, Hymn, MediaFile, TableColumn, FormField } from './lib/types';
 
 function App() {
   return (
@@ -95,76 +95,6 @@ function SermonsPage() {
         thumbnail_url: '',
         published_date: new Date().toISOString(),
         series: '',
-        ...values,
-      })}
-    />
-  );
-}
-
-const eventColumns: TableColumn<Event>[] = [
-  { key: 'title', label: 'Title', sortable: true },
-  {
-    key: 'event_date',
-    label: 'Date',
-    sortable: true,
-    render: (value) => new Date(value as string).toLocaleDateString(),
-  },
-  { key: 'location', label: 'Location', sortable: true },
-  {
-    key: 'status',
-    label: 'Status',
-    render: (value) => <StatusBadgeWrapper status={value} />,
-  },
-  {
-    key: 'current_attendees',
-    label: 'RSVPs',
-    sortable: true,
-    render: (value) => (value as number).toLocaleString(),
-  },
-];
-
-const eventFields: FormField[] = [
-  { name: 'title', label: 'Event Title', type: 'text', required: true },
-  { name: 'description', label: 'Description', type: 'richtext' },
-  { name: 'event_date', label: 'Event Date', type: 'date', required: true },
-  { name: 'location', label: 'Location', type: 'text', required: true },
-  { name: 'max_attendees', label: 'Max Attendees', type: 'number' },
-  { name: 'is_virtual', label: 'Virtual Event', type: 'checkbox' },
-  {
-    name: 'status',
-    label: 'Status',
-    type: 'select',
-    options: [
-      { value: 'draft', label: 'Draft' },
-      { value: 'published', label: 'Published' },
-      { value: 'scheduled', label: 'Scheduled' },
-      { value: 'archived', label: 'Archived' },
-    ],
-  },
-];
-
-function EventsPage() {
-  return (
-    <ModulePage<Event>
-      moduleName="events"
-      moduleLabel="Events"
-      columns={eventColumns}
-      formFields={eventFields}
-      searchableColumns={['title', 'location']}
-      pageTitle="Events"
-      itemName="Event"
-      createDefaultItem={(id, values) => ({
-        id,
-        church_id: 'default',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        slug: (values.title || '').toLowerCase().replace(/\s+/g, '-'),
-        image_url: '',
-        event_time: '00:00',
-        end_time: '01:00',
-        organizer: '',
-        current_attendees: 0,
-        virtual_link: '',
         ...values,
       })}
     />
@@ -613,94 +543,6 @@ function HymnsPage() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         slug: (values.title || '').toLowerCase().replace(/\s+/g, '-'),
-        ...values,
-      })}
-    />
-  );
-}
-
-const radioColumns: TableColumn<RadioStation>[] = [
-  { key: 'name', label: 'Name', sortable: true },
-  { key: 'frequency', label: 'Frequency', sortable: true },
-  { key: 'status', label: 'Status', render: (value) => <StatusBadgeWrapper status={value} /> },
-  { key: 'listeners_count', label: 'Listeners', sortable: true },
-];
-
-const radioFields: FormField[] = [
-  { name: 'name', label: 'Station Name', type: 'text', required: true },
-  { name: 'description', label: 'Description', type: 'textarea' },
-  { name: 'frequency', label: 'Frequency', type: 'text', required: true },
-  { name: 'stream_url', label: 'Stream URL', type: 'text', required: true },
-  { name: 'current_program', label: 'Current Program', type: 'text' },
-  { name: 'status', label: 'Status', type: 'select', options: [
-    { value: 'active', label: 'Active' },
-    { value: 'inactive', label: 'Inactive' },
-  ]},
-];
-
-function RadioStationsPage() {
-  return (
-    <ModulePage<RadioStation>
-      moduleName="radioStations"
-      moduleLabel="Radio Stations"
-      columns={radioColumns}
-      formFields={radioFields}
-      searchableColumns={['name']}
-      pageTitle="Radio Stations"
-      itemName="Station"
-      createDefaultItem={(id, values) => ({
-        id,
-        church_id: 'default',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        slug: (values.name || '').toLowerCase().replace(/\s+/g, '-'),
-        is_live: false,
-        listeners_count: 0,
-        ...values,
-      })}
-    />
-  );
-}
-
-const livestreamColumns: TableColumn<LiveStream>[] = [
-  { key: 'title', label: 'Title', sortable: true },
-  { key: 'platform', label: 'Platform', sortable: true },
-  { key: 'status', label: 'Status', render: (value) => <StatusBadgeWrapper status={value} /> },
-  { key: 'viewers_count', label: 'Viewers', sortable: true },
-];
-
-const livestreamFields: FormField[] = [
-  { name: 'title', label: 'Title', type: 'text', required: true },
-  { name: 'description', label: 'Description', type: 'textarea' },
-  { name: 'stream_url', label: 'Stream URL', type: 'text', required: true },
-  { name: 'platform', label: 'Platform', type: 'text' },
-  { name: 'start_time', label: 'Start Time', type: 'date', required: true },
-  { name: 'status', label: 'Status', type: 'select', options: [
-    { value: 'live', label: 'Live' },
-    { value: 'scheduled', label: 'Scheduled' },
-    { value: 'ended', label: 'Ended' },
-    { value: 'inactive', label: 'Inactive' },
-  ]},
-];
-
-function LiveStreamsPage() {
-  return (
-    <ModulePage<LiveStream>
-      moduleName="liveStreams"
-      moduleLabel="Live Streams"
-      columns={livestreamColumns}
-      formFields={livestreamFields}
-      searchableColumns={['title']}
-      pageTitle="Live Streams"
-      itemName="Stream"
-      createDefaultItem={(id, values) => ({
-        id,
-        church_id: 'default',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        slug: (values.title || '').toLowerCase().replace(/\s+/g, '-'),
-        thumbnail_url: '',
-        viewers_count: 0,
         ...values,
       })}
     />

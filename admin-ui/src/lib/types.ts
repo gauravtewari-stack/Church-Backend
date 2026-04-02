@@ -1,6 +1,6 @@
 export type { ReactNode } from 'react';
 
-export type ContentStatus = "draft" | "published" | "scheduled" | "archived";
+export type ContentStatus = "draft" | "published" | "scheduled" | "archived" | "active" | "inactive";
 
 export interface BaseEntity {
   id: string;

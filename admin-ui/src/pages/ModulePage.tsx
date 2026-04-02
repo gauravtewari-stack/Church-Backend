@@ -23,7 +23,7 @@ export function ModulePage<T extends { id: string }>({
   columns,
   formFields,
   searchableColumns,
-  pageTitle,
+  pageTitle: _pageTitle,
   itemName,
   createDefaultItem,
 }: ModulePageProps<T>) {

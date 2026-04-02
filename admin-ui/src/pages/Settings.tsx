@@ -204,7 +204,7 @@ export default function Settings() {
 
             {/* Language key grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              {filteredLangKeys.map((item, index) => {
+              {filteredLangKeys.map((item) => {
                 const realIndex = langKeys.findIndex(k => k.key === item.key);
                 return (
                   <input

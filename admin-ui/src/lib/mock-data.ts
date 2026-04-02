@@ -433,7 +433,7 @@ export const liveStreams: LiveStream[] = [
     description: "Community prayer gathering",
     stream_url: "https://facebook.com/live/prayer-meeting",
     thumbnail_url: "https://via.placeholder.com/320x180?text=Prayer+Meeting",
-    status: "active",
+    status: "scheduled",
     start_time: formatDate(addDays(2)),
     viewers_count: 0,
     platform: "facebook",
