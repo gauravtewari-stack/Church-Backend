@@ -65,6 +65,20 @@ export interface DonationCampaign extends BaseEntity {
   donation_count: number;
 }
 
+export interface DonationRecord extends BaseEntity {
+  donor_name: string;
+  donor_email: string;
+  donor_phone: string;
+  amount: number;
+  campaign_id: string;
+  campaign_title: string;
+  payment_method: "credit_card" | "debit_card" | "paypal" | "bank_transfer" | "cash" | "check";
+  transaction_id: string;
+  status: "completed" | "pending" | "failed" | "refunded";
+  donated_at: string;
+  notes: string;
+}
+
 export interface SpiritualResource extends BaseEntity {
   title: string;
   slug: string;
@@ -179,6 +193,7 @@ export interface StoreState {
   events: Event[];
   categories: Category[];
   donations: DonationCampaign[];
+  donationRecords: DonationRecord[];
   spiritualResources: SpiritualResource[];
   hymns: Hymn[];
   radioStations: RadioStation[];

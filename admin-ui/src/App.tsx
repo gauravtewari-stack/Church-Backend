@@ -11,7 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import { ModulePage } from './pages/ModulePage';
 import { StatusBadge } from './components/StatusBadge';
-import type { Sermon, Category, DonationCampaign, SpiritualResource, Hymn, MediaFile, TableColumn, FormField } from './lib/types';
+import type { Sermon, Category, DonationCampaign, DonationRecord, SpiritualResource, Hymn, MediaFile, TableColumn, FormField } from './lib/types';
 
 function App() {
   return (
@@ -163,8 +163,51 @@ const donationFields: FormField[] = [
   ]},
 ];
 
+const donorRecordColumns: TableColumn<DonationRecord>[] = [
+  { key: 'donor_name', label: 'Donor Name', sortable: true },
+  { key: 'donor_email', label: 'Email', sortable: true },
+  { key: 'amount', label: 'Amount', sortable: true, render: (value) => `$${(value as number).toLocaleString()}` },
+  { key: 'campaign_title', label: 'Campaign', sortable: true },
+  { key: 'payment_method', label: 'Payment Method', sortable: true, render: (value) => (value as string).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) },
+  { key: 'status', label: 'Status', render: (value) => {
+    const colors: Record<string, { bg: string; color: string }> = {
+      completed: { bg: '#dcfce7', color: '#166534' },
+      pending: { bg: '#fef9c3', color: '#854d0e' },
+      failed: { bg: '#fee2e2', color: '#991b1b' },
+      refunded: { bg: '#f3f4f6', color: '#4b5563' },
+    };
+    const style = colors[(value as string)] || colors.pending;
+    return <span style={{ padding: '2px 10px', borderRadius: '9999px', fontSize: '12px', fontWeight: 500, backgroundColor: style.bg, color: style.color }}>{(value as string).charAt(0).toUpperCase() + (value as string).slice(1)}</span>;
+  }},
+  { key: 'donated_at', label: 'Date', sortable: true, render: (value) => new Date(value as string).toLocaleDateString() },
+];
+
+const donorRecordFields: FormField[] = [
+  { name: 'donor_name', label: 'Donor Name', type: 'text', required: true },
+  { name: 'donor_email', label: 'Email', type: 'email', required: true },
+  { name: 'donor_phone', label: 'Phone', type: 'text' },
+  { name: 'amount', label: 'Amount ($)', type: 'number', required: true, min: 1 },
+  { name: 'campaign_id', label: 'Campaign', type: 'select', required: true, options: [] },
+  { name: 'payment_method', label: 'Payment Method', type: 'select', required: true, options: [
+    { value: 'credit_card', label: 'Credit Card' },
+    { value: 'debit_card', label: 'Debit Card' },
+    { value: 'paypal', label: 'PayPal' },
+    { value: 'bank_transfer', label: 'Bank Transfer' },
+    { value: 'cash', label: 'Cash' },
+    { value: 'check', label: 'Check' },
+  ]},
+  { name: 'donated_at', label: 'Donation Date', type: 'date', required: true },
+  { name: 'status', label: 'Status', type: 'select', defaultValue: 'completed', options: [
+    { value: 'completed', label: 'Completed' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'failed', label: 'Failed' },
+    { value: 'refunded', label: 'Refunded' },
+  ]},
+  { name: 'notes', label: 'Notes', type: 'textarea' },
+];
+
 function DonationsPage() {
-  const [activeTab, setActiveTab] = useState<'campaigns' | 'gateways'>('campaigns');
+  const [activeTab, setActiveTab] = useState<'campaigns' | 'donors' | 'gateways'>('campaigns');
   const { state, dispatch } = useStore();
   const toast = useToast();
   const [showForm, setShowForm] = useState(false);
@@ -193,8 +236,46 @@ function DonationsPage() {
     setShowForm(false);
   };
 
+  const donorRecords = state.donationRecords as DonationRecord[];
+  const campaigns = state.donations as DonationCampaign[];
+
+  // Build campaign options dynamically for the donor form
+  const donorFieldsWithCampaigns = donorRecordFields.map(f =>
+    f.name === 'campaign_id'
+      ? { ...f, options: campaigns.map(c => ({ value: c.id, label: c.title })) }
+      : f
+  );
+
+  const [donorShowForm, setDonorShowForm] = useState(false);
+  const [donorEditingId, setDonorEditingId] = useState<string | null>(null);
+
+  const donorEditingItem = donorEditingId ? donorRecords.find(d => d.id === donorEditingId) : null;
+  const donorInitialValues = donorEditingItem
+    ? donorFieldsWithCampaigns.reduce((acc, field) => { acc[field.name] = (donorEditingItem as any)[field.name] || field.defaultValue || ''; return acc; }, {} as Record<string, any>)
+    : donorFieldsWithCampaigns.reduce((acc, field) => { acc[field.name] = field.defaultValue || ''; return acc; }, {} as Record<string, any>);
+
+  const handleDonorSubmit = (values: Record<string, any>) => {
+    const campaign = campaigns.find(c => c.id === values.campaign_id);
+    const enriched = { ...values, campaign_title: campaign?.title || '' };
+    if (donorEditingId) {
+      dispatch({ type: 'UPDATE_ITEM', payload: { module: 'donationRecords', id: donorEditingId, updates: enriched } });
+      toast.toast('Donation record updated', 'success');
+      setDonorEditingId(null);
+    } else {
+      const id = crypto.randomUUID();
+      dispatch({ type: 'ADD_ITEM', payload: { module: 'donationRecords', item: {
+        id, church_id: 'default', created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+        transaction_id: `txn_${crypto.randomUUID().slice(0, 12)}`,
+        ...enriched,
+      }}});
+      toast.toast('Donation record created', 'success');
+    }
+    setDonorShowForm(false);
+  };
+
   const tabs = [
     { key: 'campaigns' as const, label: 'Campaigns' },
+    { key: 'donors' as const, label: 'Donor Records' },
     { key: 'gateways' as const, label: 'Payment Gateways' },
   ];
 
@@ -217,6 +298,21 @@ function DonationsPage() {
               <Plus style={{ width: '20px', height: '20px' }} /> Add Campaign
             </button>
           )}
+          {activeTab === 'donors' && !donorShowForm && (
+            <button
+              onClick={() => { setDonorEditingId(null); setDonorShowForm(true); }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '8px 16px', backgroundColor: '#1B73E8', color: '#fff',
+                borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: '14px',
+                transition: 'background-color 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#1556c9')}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#1B73E8')}
+            >
+              <Plus style={{ width: '20px', height: '20px' }} /> Add Donation
+            </button>
+          )}
         </div>
 
         {/* Tabs */}
@@ -225,7 +321,7 @@ function DonationsPage() {
             {tabs.map(tab => (
               <button
                 key={tab.key}
-                onClick={() => { setActiveTab(tab.key); setShowForm(false); setEditingId(null); }}
+                onClick={() => { setActiveTab(tab.key); setShowForm(false); setEditingId(null); setDonorShowForm(false); setDonorEditingId(null); }}
                 style={{
                   padding: '12px 16px', fontSize: '14px', fontWeight: 500,
                   color: activeTab === tab.key ? '#1B73E8' : '#4b5563',
@@ -261,6 +357,28 @@ function DonationsPage() {
               onDuplicate={(item) => { dispatch({ type: 'DUPLICATE_ITEM', payload: { module: 'donations', id: item.id } }); toast.toast('Campaign duplicated', 'success'); }}
               emptyState="No campaigns found. Create your first campaign!"
               searchableColumns={['title'] as (keyof DonationCampaign)[]}
+            />
+          )
+        )}
+
+        {activeTab === 'donors' && (
+          donorShowForm ? (
+            <EntityForm
+              fields={donorFieldsWithCampaigns}
+              initialValues={donorInitialValues}
+              onSubmit={handleDonorSubmit}
+              onCancel={() => { setDonorShowForm(false); setDonorEditingId(null); }}
+              submitLabel={donorEditingId ? 'Update' : 'Create'}
+              title={donorEditingId ? 'Edit Donation Record' : 'New Donation Record'}
+            />
+          ) : (
+            <DataTable
+              columns={donorRecordColumns}
+              data={donorRecords}
+              onEdit={(item) => { setDonorEditingId(item.id); setDonorShowForm(true); }}
+              onDelete={(id) => { dispatch({ type: 'DELETE_ITEM', payload: { module: 'donationRecords', id } }); toast.toast('Donation record deleted', 'success'); }}
+              emptyState="No donation records found."
+              searchableColumns={['donor_name', 'donor_email', 'campaign_title'] as (keyof DonationRecord)[]}
             />
           )
         )}
