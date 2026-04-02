@@ -206,6 +206,17 @@ const donorRecordFields: FormField[] = [
   { name: 'notes', label: 'Notes', type: 'textarea' },
 ];
 
+const filterSelectStyle: React.CSSProperties = {
+  padding: '8px 12px',
+  fontSize: '13px',
+  border: '1px solid #d1d5db',
+  borderRadius: '8px',
+  backgroundColor: '#fff',
+  color: '#374151',
+  minWidth: '150px',
+  fontFamily: 'inherit',
+};
+
 function DonationsPage() {
   const [activeTab, setActiveTab] = useState<'campaigns' | 'donors' | 'gateways'>('campaigns');
   const { state, dispatch } = useStore();
@@ -248,6 +259,25 @@ function DonationsPage() {
 
   const [donorShowForm, setDonorShowForm] = useState(false);
   const [donorEditingId, setDonorEditingId] = useState<string | null>(null);
+
+  // Donor filters
+  const [filterCampaign, setFilterCampaign] = useState('');
+  const [filterPaymentMethod, setFilterPaymentMethod] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterDateFrom, setFilterDateFrom] = useState('');
+  const [filterDateTo, setFilterDateTo] = useState('');
+
+  const filteredDonorRecords = donorRecords.filter(r => {
+    if (filterCampaign && r.campaign_id !== filterCampaign) return false;
+    if (filterPaymentMethod && r.payment_method !== filterPaymentMethod) return false;
+    if (filterStatus && r.status !== filterStatus) return false;
+    if (filterDateFrom && r.donated_at < new Date(filterDateFrom).toISOString()) return false;
+    if (filterDateTo && r.donated_at > new Date(filterDateTo + 'T23:59:59').toISOString()) return false;
+    return true;
+  });
+
+  const hasActiveFilters = filterCampaign || filterPaymentMethod || filterStatus || filterDateFrom || filterDateTo;
+  const clearAllFilters = () => { setFilterCampaign(''); setFilterPaymentMethod(''); setFilterStatus(''); setFilterDateFrom(''); setFilterDateTo(''); };
 
   const donorEditingItem = donorEditingId ? donorRecords.find(d => d.id === donorEditingId) : null;
   const donorInitialValues = donorEditingItem
@@ -372,14 +402,102 @@ function DonationsPage() {
               title={donorEditingId ? 'Edit Donation Record' : 'New Donation Record'}
             />
           ) : (
-            <DataTable
-              columns={donorRecordColumns}
-              data={donorRecords}
-              onEdit={(item) => { setDonorEditingId(item.id); setDonorShowForm(true); }}
-              onDelete={(id) => { dispatch({ type: 'DELETE_ITEM', payload: { module: 'donationRecords', id } }); toast.toast('Donation record deleted', 'success'); }}
-              emptyState="No donation records found."
-              searchableColumns={['donor_name', 'donor_email', 'campaign_title'] as (keyof DonationRecord)[]}
-            />
+            <>
+              {/* Filter Bar */}
+              <div style={{
+                display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end',
+                marginBottom: '20px', padding: '16px', backgroundColor: '#fff',
+                borderRadius: '8px', border: '1px solid #e5e7eb',
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 500, color: '#6b7280' }}>Campaign</label>
+                  <select
+                    value={filterCampaign}
+                    onChange={e => setFilterCampaign(e.target.value)}
+                    style={filterSelectStyle}
+                  >
+                    <option value="">All Campaigns</option>
+                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+                  </select>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 500, color: '#6b7280' }}>Payment Method</label>
+                  <select
+                    value={filterPaymentMethod}
+                    onChange={e => setFilterPaymentMethod(e.target.value)}
+                    style={filterSelectStyle}
+                  >
+                    <option value="">All Methods</option>
+                    <option value="credit_card">Credit Card</option>
+                    <option value="debit_card">Debit Card</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="cash">Cash</option>
+                    <option value="check">Check</option>
+                  </select>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 500, color: '#6b7280' }}>Status</label>
+                  <select
+                    value={filterStatus}
+                    onChange={e => setFilterStatus(e.target.value)}
+                    style={filterSelectStyle}
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="completed">Completed</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                    <option value="refunded">Refunded</option>
+                  </select>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 500, color: '#6b7280' }}>From Date</label>
+                  <input
+                    type="date"
+                    value={filterDateFrom}
+                    onChange={e => setFilterDateFrom(e.target.value)}
+                    style={filterSelectStyle}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 500, color: '#6b7280' }}>To Date</label>
+                  <input
+                    type="date"
+                    value={filterDateTo}
+                    onChange={e => setFilterDateTo(e.target.value)}
+                    style={filterSelectStyle}
+                  />
+                </div>
+
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    style={{
+                      padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: '#dc2626',
+                      backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px',
+                      cursor: 'pointer', transition: 'background-color 0.2s', alignSelf: 'flex-end',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#fee2e2')}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fef2f2')}
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+
+              <DataTable
+                columns={donorRecordColumns}
+                data={filteredDonorRecords}
+                onEdit={(item) => { setDonorEditingId(item.id); setDonorShowForm(true); }}
+                onDelete={(id) => { dispatch({ type: 'DELETE_ITEM', payload: { module: 'donationRecords', id } }); toast.toast('Donation record deleted', 'success'); }}
+                emptyState={hasActiveFilters ? "No records match the selected filters." : "No donation records found."}
+                searchableColumns={['donor_name', 'donor_email', 'campaign_title'] as (keyof DonationRecord)[]}
+              />
+            </>
           )
         )}
 
