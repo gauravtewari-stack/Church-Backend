@@ -33,6 +33,7 @@ function App() {
               <Route path="/media" element={<MediaFilesPage />} />
 
               <Route path="/settings" element={<Settings />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </div>
         </div>
@@ -228,7 +229,12 @@ function DonationsPage() {
   const editingItem = editingId ? items.find(s => s.id === editingId) : null;
 
   const initialValues = editingItem
-    ? donationFields.reduce((acc, field) => { acc[field.name] = (editingItem as any)[field.name] || field.defaultValue || ''; return acc; }, {} as Record<string, any>)
+    ? donationFields.reduce((acc, field) => {
+        let val = (editingItem as any)[field.name] || field.defaultValue || '';
+        if (field.type === 'date' && val) val = val.split('T')[0];
+        acc[field.name] = val;
+        return acc;
+      }, {} as Record<string, any>)
     : donationFields.reduce((acc, field) => { acc[field.name] = field.defaultValue || ''; return acc; }, {} as Record<string, any>);
 
   const handleSubmit = (values: Record<string, any>) => {
@@ -281,7 +287,12 @@ function DonationsPage() {
 
   const donorEditingItem = donorEditingId ? donorRecords.find(d => d.id === donorEditingId) : null;
   const donorInitialValues = donorEditingItem
-    ? donorFieldsWithCampaigns.reduce((acc, field) => { acc[field.name] = (donorEditingItem as any)[field.name] || field.defaultValue || ''; return acc; }, {} as Record<string, any>)
+    ? donorFieldsWithCampaigns.reduce((acc, field) => {
+        let val = (donorEditingItem as any)[field.name] || field.defaultValue || '';
+        if (field.type === 'date' && val) val = val.split('T')[0];
+        acc[field.name] = val;
+        return acc;
+      }, {} as Record<string, any>)
     : donorFieldsWithCampaigns.reduce((acc, field) => { acc[field.name] = field.defaultValue || ''; return acc; }, {} as Record<string, any>);
 
   const handleDonorSubmit = (values: Record<string, any>) => {
@@ -312,39 +323,6 @@ function DonationsPage() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', padding: '24px' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '16px' }}>
-          {activeTab === 'campaigns' && !showForm && (
-            <button
-              onClick={() => { setEditingId(null); setShowForm(true); }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '8px',
-                padding: '8px 16px', backgroundColor: '#1B73E8', color: '#fff',
-                borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: '14px',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#1556c9')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#1B73E8')}
-            >
-              <Plus style={{ width: '20px', height: '20px' }} /> Add Campaign
-            </button>
-          )}
-          {activeTab === 'donors' && !donorShowForm && (
-            <button
-              onClick={() => { setDonorEditingId(null); setDonorShowForm(true); }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '8px',
-                padding: '8px 16px', backgroundColor: '#1B73E8', color: '#fff',
-                borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: '14px',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#1556c9')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#1B73E8')}
-            >
-              <Plus style={{ width: '20px', height: '20px' }} /> Add Donation
-            </button>
-          )}
-        </div>
-
         {/* Tabs */}
         <div style={{ marginBottom: '24px', borderBottom: '1px solid #e5e7eb' }}>
           <div style={{ display: 'flex', gap: '24px' }}>
@@ -379,6 +357,22 @@ function DonationsPage() {
               title={editingId ? 'Edit Campaign' : 'New Campaign'}
             />
           ) : (
+            <>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+              <button
+                onClick={() => { setEditingId(null); setShowForm(true); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '8px 16px', backgroundColor: '#1B73E8', color: '#fff',
+                  borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: '14px',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#1556c9')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#1B73E8')}
+              >
+                <Plus style={{ width: '20px', height: '20px' }} /> Add Campaign
+              </button>
+            </div>
             <DataTable
               columns={donationColumns}
               data={items}
@@ -388,6 +382,7 @@ function DonationsPage() {
               emptyState="No campaigns found. Create your first campaign!"
               searchableColumns={['title'] as (keyof DonationCampaign)[]}
             />
+            </>
           )
         )}
 
@@ -403,6 +398,21 @@ function DonationsPage() {
             />
           ) : (
             <>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                <button
+                  onClick={() => { setDonorEditingId(null); setDonorShowForm(true); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    padding: '8px 16px', backgroundColor: '#1B73E8', color: '#fff',
+                    borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: '14px',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#1556c9')}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#1B73E8')}
+                >
+                  <Plus style={{ width: '20px', height: '20px' }} /> Add Donation
+                </button>
+              </div>
               {/* Filter Bar */}
               <div style={{
                 display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end',

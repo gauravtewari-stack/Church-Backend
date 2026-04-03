@@ -38,7 +38,9 @@ export function ModulePage<T extends { id: string }>({
 
   const initialValues = editingItem
     ? formFields.reduce((acc, field) => {
-        acc[field.name] = (editingItem as any)[field.name] || field.defaultValue || '';
+        let val = (editingItem as any)[field.name] || field.defaultValue || '';
+        if (field.type === 'date' && val) val = val.split('T')[0];
+        acc[field.name] = val;
         return acc;
       }, {} as Record<string, any>)
     : formFields.reduce((acc, field) => {

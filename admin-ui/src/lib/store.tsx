@@ -62,12 +62,14 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
       const items = state[moduleKey] as any[];
       const itemToDuplicate = items.find((item) => item.id === id);
       if (!itemToDuplicate) return state;
+      const name = itemToDuplicate.title || itemToDuplicate.name || '';
       const duplicated = {
         ...itemToDuplicate,
         id: `${itemToDuplicate.id}-copy-${Date.now()}`,
+        ...(itemToDuplicate.title !== undefined && { title: `${name} (Copy)` }),
+        ...(itemToDuplicate.title === undefined && itemToDuplicate.name !== undefined && { name: `${name} (Copy)` }),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        status: 'draft',
       };
       return {
         ...state,
