@@ -225,7 +225,12 @@ function DonationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const items = state.donations as DonationCampaign[];
+  const rawItems = state.donations as DonationCampaign[];
+  const allDonorRecords = state.donationRecords as DonationRecord[];
+  const items = rawItems.map(c => ({
+    ...c,
+    donation_count: allDonorRecords.filter(r => r.campaign_id === c.id).length,
+  }));
   const editingItem = editingId ? items.find(s => s.id === editingId) : null;
 
   const initialValues = editingItem

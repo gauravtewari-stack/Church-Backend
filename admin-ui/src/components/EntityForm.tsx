@@ -193,15 +193,46 @@ export function EntityForm({
 
   const handleFieldChange = (name: string, value: string) => {
     setFieldValues(prev => ({ ...prev, [name]: value }));
+    if (validationErrors[name]) {
+      setValidationErrors(prev => { const next = { ...prev }; delete next[name]; return next; });
+    }
   };
 
   const handleFileSelect = (fieldName: string, file: File | null) => {
     setUploadedFiles(prev => ({ ...prev, [fieldName]: file }));
   };
 
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  const validateFields = (formData: FormData): Record<string, string> => {
+    const errors: Record<string, string> = {};
+    fields.forEach((field) => {
+      if (!field.required) return;
+      if (field.type === 'file') return;
+      if (field.type === 'richtext') {
+        const val = richTextValues[field.name] || '';
+        const stripped = val.replace(/<[^>]*>/g, '').trim();
+        if (!stripped) errors[field.name] = `${field.label} is required`;
+      } else if (field.type === 'checkbox') {
+        return;
+      } else {
+        const val = formData.get(field.name);
+        if (!val || String(val).trim() === '') {
+          errors[field.name] = `${field.label} is required`;
+        }
+      }
+    });
+    return errors;
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
+    const errors = validateFields(formData);
+    setValidationErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     const values: Record<string, any> = {};
 
     fields.forEach((field) => {
@@ -234,6 +265,8 @@ export function EntityForm({
     return !!depValue;
   };
 
+  const borderColor = (field: FormField) => validationErrors[field.name] ? '#dc2626' : '#d1d5db';
+
   const getFileAccept = (field: FormField) => {
     if (!field.dependsOn?.acceptMap) return field.accept;
     const depValue = fieldValues[field.dependsOn.field];
@@ -256,6 +289,12 @@ export function EntityForm({
                   {field.required && <span style={{ color: '#ef4444' }}>*</span>}
                 </label>
 
+                {validationErrors[field.name] && (
+                  <div style={{ fontSize: '12px', color: '#dc2626', marginBottom: '4px' }}>
+                    {validationErrors[field.name]}
+                  </div>
+                )}
+
                 {field.type === 'file' ? (
                   <FileUploadField
                     field={field}
@@ -264,11 +303,11 @@ export function EntityForm({
                     accept={getFileAccept(field)}
                   />
                 ) : field.type === 'richtext' ? (
-                  <div style={{ border: '1px solid #d1d5db', borderRadius: '8px', overflow: 'hidden' }}>
+                  <div style={{ border: `1px solid ${borderColor(field)}`, borderRadius: '8px', overflow: 'hidden' }}>
                     <ReactQuill
                       theme="snow"
                       value={richTextValues[field.name] || ''}
-                      onChange={(value) => setRichTextValues(prev => ({ ...prev, [field.name]: value }))}
+                      onChange={(value) => { setRichTextValues(prev => ({ ...prev, [field.name]: value })); if (validationErrors[field.name]) setValidationErrors(prev => { const n = { ...prev }; delete n[field.name]; return n; }); }}
                       modules={{
                         toolbar: [
                           [{ header: [1, 2, 3, false] }],
@@ -288,13 +327,14 @@ export function EntityForm({
                     defaultValue={initialValues[field.name] || field.defaultValue || ''}
                     required={field.required}
                     maxLength={field.maxLength}
+                    onChange={() => { if (validationErrors[field.name]) setValidationErrors(prev => { const n = { ...prev }; delete n[field.name]; return n; }); }}
                     style={{
                       width: '100%',
                       paddingLeft: '12px',
                       paddingRight: '12px',
                       paddingTop: '8px',
                       paddingBottom: '8px',
-                      border: '1px solid #d1d5db',
+                      border: `1px solid ${borderColor(field)}`,
                       borderRadius: '8px',
                       fontSize: '14px',
                       fontFamily: 'inherit',
@@ -324,7 +364,7 @@ export function EntityForm({
                       paddingRight: '12px',
                       paddingTop: '8px',
                       paddingBottom: '8px',
-                      border: '1px solid #d1d5db',
+                      border: `1px solid ${borderColor(field)}`,
                       borderRadius: '8px',
                       fontSize: '14px',
                       fontFamily: 'inherit',
@@ -389,13 +429,14 @@ export function EntityForm({
                     maxLength={field.maxLength}
                     min={field.min}
                     max={field.max}
+                    onChange={() => { if (validationErrors[field.name]) setValidationErrors(prev => { const n = { ...prev }; delete n[field.name]; return n; }); }}
                     style={{
                       width: '100%',
                       paddingLeft: '12px',
                       paddingRight: '12px',
                       paddingTop: '8px',
                       paddingBottom: '8px',
-                      border: '1px solid #d1d5db',
+                      border: `1px solid ${borderColor(field)}`,
                       borderRadius: '8px',
                       fontSize: '14px',
                       fontFamily: 'inherit',
@@ -406,7 +447,7 @@ export function EntityForm({
                       e.currentTarget.style.boxShadow = '0 0 0 3px rgba(27, 115, 232, 0.1)';
                     }}
                     onBlur={(e) => {
-                      e.currentTarget.style.borderColor = '#d1d5db';
+                      e.currentTarget.style.borderColor = borderColor(field);
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   />
